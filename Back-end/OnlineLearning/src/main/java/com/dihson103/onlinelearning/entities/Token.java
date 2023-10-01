@@ -1,9 +1,6 @@
 package com.dihson103.onlinelearning.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -18,11 +15,15 @@ public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
     private String token;
 
+    @Column(nullable = false)
     private Boolean expired;
 
+    @Column(nullable = false)
     private Boolean revoked;
 
+    @Column(nullable = false)
     private Boolean isAccessToken;
 }
