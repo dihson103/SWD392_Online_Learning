@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,5 +39,8 @@ public class Account {
 
     @Column(nullable = false)
     private Boolean status;
+
+    @OneToMany(mappedBy = "account")
+    private List<Enroll> enrolls;
 
 }

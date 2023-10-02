@@ -35,8 +35,13 @@ public class Course {
     @Column(nullable = false)
     private Boolean status;
 
-
     @OneToMany(mappedBy = "course")
     private List<Discount> discounts;
+
+    @OneToMany(mappedBy = "course")
+    private List<Enroll> enrolls;
+
+    @OneToMany(mappedBy = "course")
+    private List<Lesson> lessons;
 
 }
