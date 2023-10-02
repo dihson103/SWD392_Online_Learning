@@ -18,8 +18,8 @@ public class History {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Column(nullable = false)
     private Date date;

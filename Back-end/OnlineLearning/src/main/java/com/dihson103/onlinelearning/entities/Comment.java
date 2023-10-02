@@ -18,8 +18,8 @@ public class Comment {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name = "session_id", nullable = false)
@@ -27,7 +27,7 @@ public class Comment {
 
     @OneToOne
     @JoinColumn(name = "comment_to")
-    private Account commentTo;
+    private UserEntity commentTo;
 
     @Column(nullable = false)
     private Date createDate;

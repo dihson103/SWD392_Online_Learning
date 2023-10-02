@@ -17,9 +17,9 @@ public class Enroll {
     private EnrollKey id;
 
     @ManyToOne
-    @MapsId("accountId")
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @MapsId("userId")
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToOne
     @MapsId("courseId")

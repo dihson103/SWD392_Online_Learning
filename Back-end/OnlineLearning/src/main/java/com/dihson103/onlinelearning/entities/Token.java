@@ -26,4 +26,11 @@ public class Token {
 
     @Column(nullable = false)
     private Boolean isAccessToken;
+
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 }

@@ -16,8 +16,8 @@ import java.io.Serializable;
 @Embeddable
 public class EnrollKey implements Serializable {
 
-    @Column(name = "account_id")
-    private Integer accountId;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "course_id")
     private Integer courseId;
