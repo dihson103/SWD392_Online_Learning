@@ -25,7 +25,6 @@ public class LogoutHandle implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request,
-
                        HttpServletResponse response, Authentication authentication) {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){

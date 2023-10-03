@@ -29,6 +29,4 @@ public class UserRequest {
         private String phone;
 
         private String address;
-
-        private Role role;
 }

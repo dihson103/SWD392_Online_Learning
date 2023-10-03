@@ -2,6 +2,7 @@ package com.dihson103.onlinelearning.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,6 +41,7 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ColumnDefault("USER")
     private Role role;
 
     @Column(nullable = false)
@@ -70,21 +72,21 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return status;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return status;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return status;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return status;
     }
 }

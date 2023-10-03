@@ -51,7 +51,7 @@ public class AuthenticateService implements IAuthenticateService {
            authenticationRequest.getEmail(),
            authenticationRequest.getPassword()
         ));
-        UserEntity user = userRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow();
+        UserEntity user = userRepository.findByEmailAndStatusIsTrue(authenticationRequest.getEmail()).orElseThrow();
 
         return createTokenHandle(user);
     }
@@ -70,7 +70,7 @@ public class AuthenticateService implements IAuthenticateService {
         DecodedJWT decodedJWT = verifier.verify(refreshToken);
         username = decodedJWT.getSubject();
 
-        UserEntity user = userRepository.findByUsername(username).orElseThrow();
+        UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username).orElseThrow();
 
         return createTokenHandle(user);
     }

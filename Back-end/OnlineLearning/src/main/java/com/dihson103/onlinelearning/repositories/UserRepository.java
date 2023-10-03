@@ -14,6 +14,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     List<UserEntity> findAllByStatusIsTrue();
 
-    Optional<UserEntity> findByIdAndStatusIsTrue(Integer userId);
+    Optional<UserEntity> findFirstByIdAndStatusIsTrue(Integer userId);
+
+    Optional<UserEntity> findByUsernameAndStatusIsTrue(String username);
+
+    Optional<UserEntity> findByEmailAndStatusIsTrue(String email);
 
 }
