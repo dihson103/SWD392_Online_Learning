@@ -10,9 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.modelmapper.ModelMapper;
@@ -40,6 +38,8 @@ class IUserServiceTest {
     private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserService underTest;
+    @Captor
+    private ArgumentCaptor<UserEntity> userCaptor;
     private List<UserEntity> list;
 
     @BeforeEach
@@ -147,26 +147,92 @@ class IUserServiceTest {
 
     @Test
     void register() {
-        //given
+        // Given
+        String username = "dihson103";
+        String email = "dinhson@gmail.com";
         UserRequest userRequest = UserRequest.builder()
-                .address(anyString())
+                .address("Ha noi")
                 .phone("0976099351")
-                .username(anyString())
+                .email(email)
+                .username(username)
                 .password("123456")
                 .dob(new Date())
                 .build();
+        UserEntity userMock = UserEntity.builder().username(username).email(email).build();
 
-        //when
+        lenient().when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        lenient().when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        lenient().when(userRepository.save(userCaptor.capture())).thenReturn(userMock);
+
+        UserResponse userResponseMock = UserResponse.builder().username(username).build();
+        lenient().when(modelMapper.map(userRequest, UserEntity.class)).thenReturn(userMock);
+
+        // When
         underTest.register(userRequest);
 
-        //then
+        // Then
+        verify(userRepository, times(1)).save(userCaptor.capture());
 
+        UserEntity userCaptured = userCaptor.getValue();
 
+        assertEquals(username, userCaptured.getUsername());
+        assertEquals(email, userCaptured.getEmail());
     }
+
+    @Test
+    void register_duplicateUsername_throwException(){
+        //given
+        String username = "dinhson103";
+        String email = "dinhson@gmail.com";
+        UserRequest userRequest = UserRequest.builder()
+                .address("Ha noi")
+                .phone("0976099351")
+                .email(email)
+                .username(username)
+                .password("123456")
+                .dob(new Date())
+                .build();
+        UserEntity userMock = UserEntity.builder().username(username).email(email).build();
+        lenient().when(userRepository.findByUsername(username)).thenReturn(Optional.of(userMock));
+
+        //when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> underTest.register(userRequest));
+
+        //then
+        assertEquals(exception.getMessage(), "Username is already exist.");
+    }
+
+    @Test
+    void register_duplicateEmail_throwException(){
+        //given
+        String username = "dinhson103";
+        String email = "dinhson@gmail.com";
+        UserRequest userRequest = UserRequest.builder()
+                .address("Ha noi")
+                .phone("0976099351")
+                .email(email)
+                .username(username)
+                .password("123456")
+                .dob(new Date())
+                .build();
+        UserEntity userMock = UserEntity.builder().username(username).email(email).build();
+        lenient().when(userRepository.findByEmail(userRequest.getEmail())).thenReturn(Optional.of(userMock));
+
+        //when
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> underTest.register(userRequest));
+
+        //then
+        assertEquals(exception.getMessage(), "Email is already exist.");
+    }
+
 
     @Test
     @Disabled
     void createUser() {
+
     }
 
     @Test

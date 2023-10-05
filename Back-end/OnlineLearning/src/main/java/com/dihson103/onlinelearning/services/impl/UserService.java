@@ -45,7 +45,7 @@ public class UserService implements IUserService {
         if(isEmailExist(userRequest.getEmail())){
             throw new IllegalArgumentException("Email is already exist.");
         }
-        if(isUserNameExist(userRequest.getPassword())){
+        if(isUserNameExist(userRequest.getUsername())){
             throw new IllegalArgumentException("Username is already exist.");
         }
         return modelMapper.map(userRequest, UserEntity.class);
