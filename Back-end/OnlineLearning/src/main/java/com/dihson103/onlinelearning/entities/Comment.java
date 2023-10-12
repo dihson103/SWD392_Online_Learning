@@ -27,7 +27,7 @@ public class Comment {
 
     @OneToOne
     @JoinColumn(name = "comment_to")
-    private UserEntity commentTo;
+    private Comment commentTo;
 
     @Column(nullable = false)
     private Date createDate;

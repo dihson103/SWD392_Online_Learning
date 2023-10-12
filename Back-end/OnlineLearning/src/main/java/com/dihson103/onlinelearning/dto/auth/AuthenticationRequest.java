@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class AuthenticationRequest{
 
-    @Email
+    @Email(message = "Wrong email format.")
     private String email;
     private String password;
 

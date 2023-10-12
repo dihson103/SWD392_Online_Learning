@@ -1,5 +1,7 @@
 package com.dihson103.onlinelearning.services;
 
+import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
+import com.dihson103.onlinelearning.dto.user.ChangePasswordRequest;
 import com.dihson103.onlinelearning.dto.user.UserRequest;
 import com.dihson103.onlinelearning.dto.user.UserResponse;
 import com.dihson103.onlinelearning.dto.user.UserUpdateRequest;
@@ -18,7 +20,13 @@ public interface IUserService {
 
     UserResponse getUserByUsername(String username);
 
-    void updateUser(UserUpdateRequest userRequest);
+    void updateUser(String username, UserUpdateRequest userRequest);
 
     void updateUserWithRole(UserUpdateRequest userUpdateRequest, String role);
+
+    List<UserResponse> filter(FilterRequestDto requestDto);
+
+    void changePassword(String username, ChangePasswordRequest changePasswordRequest);
+
+    List<UserResponse> getListUserEnrollCourse(Integer courseId);
 }

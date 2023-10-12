@@ -1,14 +1,19 @@
 package com.dihson103.onlinelearning.dto.enroll;
 
+import com.dihson103.onlinelearning.dto.course.CourseResponse;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EnrollRequest {
+@Builder
+public class EnrollResponse {
 
-    private Integer courseId;
-
+    private CourseResponse courseResponse;
+    private Double price;
+    private LocalDateTime enrollDate;
 
 }

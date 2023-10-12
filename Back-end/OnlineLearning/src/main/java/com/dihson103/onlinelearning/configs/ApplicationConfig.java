@@ -53,4 +53,9 @@ public class ApplicationConfig {
         return modelMapper;
     }
 
+//    @Bean
+//    public AmazonS3Client client() {
+//        return new AmazonS3Client();
+//    }
+
 }

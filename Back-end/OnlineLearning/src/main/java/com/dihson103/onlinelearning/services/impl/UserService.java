@@ -1,5 +1,10 @@
 package com.dihson103.onlinelearning.services.impl;
 
+import com.dihson103.onlinelearning.entities.Enroll;
+import com.dihson103.onlinelearning.repositories.EnrollRepository;
+import com.dihson103.onlinelearning.services.FiltersSpecification;
+import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
+import com.dihson103.onlinelearning.dto.user.ChangePasswordRequest;
 import com.dihson103.onlinelearning.dto.user.UserRequest;
 import com.dihson103.onlinelearning.dto.user.UserResponse;
 import com.dihson103.onlinelearning.dto.user.UserUpdateRequest;
@@ -9,6 +14,7 @@ import com.dihson103.onlinelearning.repositories.UserRepository;
 import com.dihson103.onlinelearning.services.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +29,10 @@ import static com.dihson103.onlinelearning.entities.Role.USER;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+    private final EnrollRepository enrollRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final FiltersSpecification<UserEntity> userEntityFiltersSpecification;
 
     private Boolean isEmailExist(String email){
         return userRepository.findByEmail(email).isPresent();
@@ -110,8 +118,8 @@ public class UserService implements IUserService {
         }
     }
 
-    private UserEntity update(UserUpdateRequest userRequest){
-        UserEntity oldUser = getUserById(userRequest.getId())
+    private UserEntity update(String username, UserUpdateRequest userRequest){
+        UserEntity oldUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find user with id: " + userRequest.getId()));
         UserEntity newUser = modelMapper.map(userRequest, UserEntity.class);
         checkUpdateUserValid(oldUser, newUser);
@@ -121,14 +129,46 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public void updateUser(UserUpdateRequest userRequest) {
-        userRepository.save(update(userRequest));
+    public void updateUser(String username, UserUpdateRequest userRequest) {
+        userRepository.save(update(username, userRequest));
     }
 
     @Override
     public void updateUserWithRole(UserUpdateRequest userUpdateRequest, String role) {
-        UserEntity user = update(userUpdateRequest);
+        UserEntity user = update(userUpdateRequest.getUsername(), userUpdateRequest);
         user.setRole(getRole(role));
         userRepository.save(user);
+    }
+
+    @Override
+    public List<UserResponse> filter(FilterRequestDto filterRequestDto) {
+        Specification<UserEntity> specification = userEntityFiltersSpecification.getSpecification(
+                filterRequestDto.getSearchRequestDto(),
+                filterRequestDto.getGlobalOperator()
+        );
+        List<UserEntity> list = userRepository.findAll(specification);
+        return list.stream()
+                .map(user -> modelMapper.map(user, UserResponse.class))
+                .toList();
+    }
+
+    @Override
+    public void changePassword(String username, ChangePasswordRequest changePasswordRequest) {
+        if(changePasswordRequest.isPasswordValid()){
+            throw new IllegalArgumentException("New password should not be equal old password.");
+        }
+        UserEntity user = userRepository
+                .findByUsernameAndPassword(username, passwordEncoder.encode(changePasswordRequest.getOldPassword()))
+                .orElseThrow(() ->  new IllegalArgumentException("Can not found user."));
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<UserResponse> getListUserEnrollCourse(Integer courseId) {
+        List<Enroll> enrolls = enrollRepository.getListEnrollByCourseId(courseId);
+        return enrolls.stream()
+                .map(enroll -> modelMapper.map(enroll.getUser(), UserResponse.class))
+                .toList();
     }
 }

@@ -3,6 +3,7 @@ package com.dihson103.onlinelearning.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -20,13 +21,13 @@ public class Discount {
     @Column(nullable = false)
     private Double discount;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date dateFrom;
+    private LocalDateTime dateFrom;
 
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date dateTo;
+    private LocalDateTime dateTo;
 
     @ManyToOne
     @JoinColumn(name = "courseId", nullable = false)

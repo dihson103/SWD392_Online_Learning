@@ -3,6 +3,7 @@ package com.dihson103.onlinelearning.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -27,7 +28,8 @@ public class Enroll {
     private Course course;
 
     @Column(nullable = false)
-    private Date enrollDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime enrollDate;
 
     @Column(nullable = false)
     private Double price;

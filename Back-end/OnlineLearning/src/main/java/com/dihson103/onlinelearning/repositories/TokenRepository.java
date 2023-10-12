@@ -3,6 +3,7 @@ package com.dihson103.onlinelearning.repositories;
 import com.dihson103.onlinelearning.entities.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;

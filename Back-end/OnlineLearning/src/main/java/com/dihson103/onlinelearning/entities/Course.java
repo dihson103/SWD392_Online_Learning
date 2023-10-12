@@ -2,7 +2,9 @@ package com.dihson103.onlinelearning.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -28,9 +30,11 @@ public class Course {
     private String title;
 
     @Column(nullable = false)
-    private Date createdDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdDate;
 
-    private Date publicDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime publicDate;
 
     @Column(nullable = false)
     private Boolean status;

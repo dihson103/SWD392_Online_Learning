@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateLessonRequest {
+public class LessonRequest {
 
     @NotBlank(message = "Lesson's title should not be null.")
     private String title;

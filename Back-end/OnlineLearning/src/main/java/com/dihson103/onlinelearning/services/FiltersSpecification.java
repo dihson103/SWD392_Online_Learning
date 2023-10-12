@@ -1,4 +1,4 @@
-package com.dihson103.onlinelearning.controllers;
+package com.dihson103.onlinelearning.services;
 
 import com.dihson103.onlinelearning.dto.filter.GlobalOperator;
 import com.dihson103.onlinelearning.dto.filter.Operator;
