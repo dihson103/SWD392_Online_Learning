@@ -49,6 +49,7 @@ public class CourseService implements ICourseService {
             course.setStatus(true);
             course.setPublicDate(LocalDateTime.now());
         }
+        course.setStatus(courseRequest.getStatus());
         courseRepository.save(course);
     }
 

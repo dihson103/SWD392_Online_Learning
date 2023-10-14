@@ -29,7 +29,7 @@ public class EnrollController {
         String username = authentication.getName();
         service.enrollCourse(username, courseId);
         return ApiResponse.builder()
-                .message("Enroll course has id: ")
+                .message("Enroll course has id: " + courseId + " success.")
                 .build();
     }
 
@@ -40,6 +40,7 @@ public class EnrollController {
         List<EnrollResponse> enrollResponses = service.getEnrollListByUser(username);
         return ApiResponse.<List<EnrollResponse>>builder()
                 .message("Get list enroll of user has username: " + username + " success.")
+                .data(enrollResponses)
                 .build();
     }
 

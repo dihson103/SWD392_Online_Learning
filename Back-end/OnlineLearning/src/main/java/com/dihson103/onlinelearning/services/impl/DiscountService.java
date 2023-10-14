@@ -42,9 +42,6 @@ public class DiscountService implements IDiscountService {
         if(!course.getStatus()){
             throw new IllegalArgumentException("Please active this course after set discount.");
         }
-        if(isCourseHasDiscountActive(course, discountRequest)){
-            throw new IllegalArgumentException("This course already has discount active.");
-        }
         return course;
     }
 
@@ -57,6 +54,9 @@ public class DiscountService implements IDiscountService {
     public void createNewDiscount(DiscountRequest discountRequest) {
         checkDateOfDiscount(discountRequest);
         Course course = findAndCheckCourse(discountRequest);
+        if(isCourseHasDiscountActive(course, discountRequest)){
+            throw new IllegalArgumentException("This course already has discount active.");
+        }
         Discount discount = modelMapper.map(discountRequest, Discount.class);
         discount.setCourse(course);
         discountRepository.save(discount);

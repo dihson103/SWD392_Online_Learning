@@ -50,10 +50,11 @@ public class EnrollService implements IEnrollService {
         if(isUserEnrolled){
             throw new IllegalArgumentException("User are already enrolled this course.");
         }
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find course has id: " + courseId));
         LocalDateTime now = LocalDateTime.now();
         Enroll enroll = Enroll.builder()
+                .id(enrollKey)
                 .course(course)
                 .user(user)
                 .enrollDate(now)
