@@ -17,6 +17,10 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    private String sessionName;
+
+    @Column(nullable = false)
     private String videoAddress;
 
     @Column(nullable = false)

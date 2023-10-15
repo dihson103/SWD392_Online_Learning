@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EnrollRepository extends JpaRepository<Enroll, EnrollKey>, JpaSpecificationExecutor<Enroll> {
 
@@ -21,5 +22,12 @@ public interface EnrollRepository extends JpaRepository<Enroll, EnrollKey>, JpaS
         WHERE e.course.id = :courseId   
     """)
     List<Enroll> getListEnrollByCourseId(Integer courseId);
+
+
+    @Query("""
+        SELECT e FROM Enroll e
+        WHERE e.course.id = :courseId AND e.user.username = :username
+    """)
+    Optional<Enroll> getEnrollByUsernameAndCourse(String username, Integer courseId);
 
 }

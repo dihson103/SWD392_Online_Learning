@@ -22,7 +22,4 @@ public class UpdateCourseRequest {
     @NotNull(message = "")
     private String title;
 
-    @NotNull(message = "Status should not be null.")
-    private Boolean status;
-
 }

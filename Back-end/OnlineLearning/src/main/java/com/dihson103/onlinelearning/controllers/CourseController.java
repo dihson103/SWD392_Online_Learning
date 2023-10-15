@@ -2,6 +2,7 @@ package com.dihson103.onlinelearning.controllers;
 
 import com.dihson103.onlinelearning.dto.common.ApiResponse;
 import com.dihson103.onlinelearning.dto.course.CourseResponse;
+import com.dihson103.onlinelearning.dto.course.CourseStatusRequest;
 import com.dihson103.onlinelearning.dto.course.CreateCourseRequest;
 import com.dihson103.onlinelearning.dto.course.UpdateCourseRequest;
 import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
@@ -87,6 +88,16 @@ public class CourseController {
                 .data(courseResponses)
                 .build();
 
+    }
+
+    @PutMapping("/change-status")
+    @ResponseStatus(OK)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
+    public ApiResponse changeCourseStatus(@RequestBody CourseStatusRequest courseStatusRequest){
+        service.changeCourseStatus(courseStatusRequest);
+        return ApiResponse.builder()
+                .message("Change course status to " + (courseStatusRequest.getStatus() ? "active" : "inactive") + " success")
+                .build();
     }
 
 }

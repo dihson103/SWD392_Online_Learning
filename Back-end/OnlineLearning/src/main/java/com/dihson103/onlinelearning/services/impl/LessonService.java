@@ -32,6 +32,9 @@ public class LessonService implements ILessonService {
 
     private Lesson getLessonByLessonRequest(LessonRequest lessonRequest){
         Course course = findLessonCourse(lessonRequest.getCourseId());
+        if(course.getStatus() == false && lessonRequest.getStatus()){
+            throw new IllegalArgumentException("This lesson should not be active because the course is inactive");
+        }
         Lesson lesson = modelMapper.map(lessonRequest, Lesson.class);
         lesson.setCourse(course);
         return lesson;
@@ -47,6 +50,9 @@ public class LessonService implements ILessonService {
     public void updateLesson(Integer lessonId, LessonRequest lessonRequest) {
         Lesson lesson = getLessonById(lessonId);
         Course course = findLessonCourse(lessonRequest.getCourseId());
+        if(course.getStatus() == false && lessonRequest.getStatus()){
+            throw new IllegalArgumentException("This lesson should not be active because the course is inactive");
+        }
         lesson.setCourse(course);
         lesson.setStatus(lessonRequest.getStatus());
         lesson.setTitle(lessonRequest.getTitle());
