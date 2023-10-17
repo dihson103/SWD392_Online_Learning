@@ -3,7 +3,9 @@ package com.dihson103.onlinelearning.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,20 +19,27 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(nullable = false)
+    private String content;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "session_id", nullable = false)
+    @JoinColumn(name = "session_id")
     private Session session;
 
-    @OneToOne
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> childComments;
+
+    @ManyToOne
     @JoinColumn(name = "comment_to")
-    private Comment commentTo;
+    private Comment parentComment;
 
     @Column(nullable = false)
-    private Date createDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createDate;
 
     @Column(nullable = false)
     private Boolean status;
