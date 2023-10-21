@@ -1,8 +1,42 @@
 import { Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { schema } from 'src/utils/rules'
+import Input from 'src/components/Input'
+import { useMutation } from '@tanstack/react-query'
+import { login } from 'src/apis/auth.api'
+import { toast } from 'react-toastify'
+
+type FormData = {
+  email: string
+  password: string
+}
+
+const loginSchema = schema.pick(['email', 'password'])
 
 export default function Login() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormData>({
+    resolver: yupResolver(loginSchema)
+  })
+
+  const loginMutation = useMutation({
+    mutationFn: (data: FormData) => login(data)
+  })
+
+  const onSubmit = handleSubmit((data) => {
+    loginMutation.mutate(data, {
+      onSuccess: (data) => {
+        toast.success(data.data.message)
+      }
+    })
+  })
+
   return (
-    <form>
+    <form onSubmit={onSubmit} noValidate>
       <div className='flex flex-row items-center justify-center lg:justify-start'>
         <p className='mb-0 mr-4 text-lg'>Sign in with</p>
 
@@ -59,33 +93,25 @@ export default function Login() {
         <p className='mx-4 mb-0 text-center font-semibold dark:text-white'>Or</p>
       </div>
 
-      <div className='relative mb-6' data-te-input-wrapper-init>
-        <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-          Email Address
-        </label>
-        <input
-          type='text'
-          id='email'
-          className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-          placeholder='Your email'
-          required
-        />
-        <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-      </div>
+      <Input
+        className='relative mb-6'
+        label='Email'
+        name='email'
+        type='email'
+        errorMessage={errors.email?.message}
+        register={register}
+        placeholder='Email'
+      />
 
-      <div className='relative mb-6' data-te-input-wrapper-init>
-        <label htmlFor='password' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-          Password
-        </label>
-        <input
-          type='password'
-          id='password'
-          className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-          placeholder='Your password'
-          required
-        />
-        <div className='mt-1 text-red-600 min-h-[1rem] text-sm'></div>
-      </div>
+      <Input
+        className='relative mb-6'
+        label='Password'
+        name='password'
+        type='password'
+        errorMessage={errors.password?.message}
+        register={register}
+        placeholder='Password'
+      />
 
       <div className='mb-6 flex items-center justify-between'>
         <div className='flex items-start'>
@@ -111,7 +137,7 @@ export default function Login() {
 
       <div className='text-center lg:text-left'>
         <button
-          type='button'
+          type='submit'
           className='text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
         >
           Login

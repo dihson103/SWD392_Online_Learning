@@ -1,3 +1,4 @@
+import { pick } from 'lodash'
 import type { RegisterOptions, UseFormGetValues } from 'react-hook-form'
 import * as yup from 'yup'
 
@@ -60,8 +61,8 @@ export const schema = yup.object({
   password: yup
     .string()
     .required('Password is required')
-    .min(6, 'Password must have from 6 to 160 characters')
-    .max(160, 'Password must have from 6 to 160 characters'),
+    .min(5, 'Password must have from 5 to 160 characters')
+    .max(160, 'Password must have from 5 to 160 characters'),
   confirm_password: yup
     .string()
     .required('Confirm Password is required')

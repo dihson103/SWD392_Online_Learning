@@ -4,6 +4,7 @@ import com.dihson103.onlinelearning.dto.common.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -49,6 +50,16 @@ public class MyExceptionHandle {
                 .build();
         return ResponseEntity.badRequest().body(responseData);
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(NOT_FOUND)
+    public Map<String, String> handleBadCredentialsException(Exception exception){
+        Map<String, String> errors = new HashMap<>();
+        errors.put("message", "Wrong email or password");
+        exception.printStackTrace();
+        return errors;
+    }
+
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(UNPROCESSABLE_ENTITY)

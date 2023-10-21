@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
-import { omit } from 'lodash'
+import { toast } from 'react-toastify'
 
 import { schema, Schema } from 'src/utils/rules'
 import Input from 'src/components/Input'
@@ -26,7 +26,7 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     registerAccountMutation.mutate(data, {
       onSuccess: (data) => {
-        console.log(data)
+        toast.success(data.data.message)
       },
       onError: (error) => {
         console.log(error)
