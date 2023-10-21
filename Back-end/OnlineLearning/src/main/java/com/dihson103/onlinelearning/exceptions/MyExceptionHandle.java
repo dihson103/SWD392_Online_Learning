@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class MyExceptionHandle {
@@ -36,6 +35,7 @@ public class MyExceptionHandle {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex){
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) ->{
@@ -51,6 +51,7 @@ public class MyExceptionHandle {
     }
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
     public Map<String, String> handleException(Exception exception){
         Map<String, String> errors = new HashMap<>();
         errors.put("message", exception.getMessage());

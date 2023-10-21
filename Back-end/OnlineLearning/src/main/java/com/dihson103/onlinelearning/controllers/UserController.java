@@ -31,6 +31,7 @@ public class UserController {
 
     private final IUserService service;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping
     @ResponseStatus(CREATED)
     @PermitAll

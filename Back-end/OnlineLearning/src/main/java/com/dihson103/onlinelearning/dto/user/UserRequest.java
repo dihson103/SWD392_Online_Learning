@@ -20,7 +20,7 @@ public class UserRequest {
         @Email(message = "Wrong email format.")
         private String email;
 
-        @Length(min = 5, max = 16, message = "Password must have at least 5 characters and less than 16 characters.")
+        @Length(min = 6, max = 160, message = "Password must have at least 6 characters and less than 160 characters.")
         private String password;
 
         private Date dob;
