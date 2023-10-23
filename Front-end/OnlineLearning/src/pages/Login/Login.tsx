@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { schema } from 'src/utils/rules'
@@ -6,6 +7,9 @@ import Input from 'src/components/Input'
 import { useMutation } from '@tanstack/react-query'
 import { login } from 'src/apis/auth.api'
 import { toast } from 'react-toastify'
+import { AppContext } from 'src/contexts/app.context'
+import Button from 'src/components/Button'
+import path from 'src/constants/path'
 
 type FormData = {
   email: string
@@ -23,6 +27,10 @@ export default function Login() {
     resolver: yupResolver(loginSchema)
   })
 
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+
+  const navigate = useNavigate()
+
   const loginMutation = useMutation({
     mutationFn: (data: FormData) => login(data)
   })
@@ -30,6 +38,9 @@ export default function Login() {
   const onSubmit = handleSubmit((data) => {
     loginMutation.mutate(data, {
       onSuccess: (data) => {
+        setIsAuthenticated(true)
+        setProfile(data.data.data.user_response)
+        navigate('/')
         toast.success(data.data.message)
       }
     })
@@ -136,16 +147,18 @@ export default function Login() {
       </div>
 
       <div className='text-center lg:text-left'>
-        <button
+        <Button
           type='submit'
-          className='text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
+          isLoading={loginMutation.isPending}
+          disabled={loginMutation.isPending}
+          className='text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 flex justify-center items-center'
         >
           Login
-        </button>
+        </Button>
 
         <p className='mb-0 mt-2 pt-1 text-sm font-semibold'>
           Don not have an account?
-          <Link to={'/register'} className='text-red-600 hover:underline'>
+          <Link to={path.register} className='text-red-600 hover:underline'>
             Register
           </Link>
         </p>

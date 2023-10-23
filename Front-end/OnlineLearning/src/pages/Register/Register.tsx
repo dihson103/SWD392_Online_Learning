@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -7,6 +7,8 @@ import { toast } from 'react-toastify'
 import { schema, Schema } from 'src/utils/rules'
 import Input from 'src/components/Input'
 import { registerAccount } from 'src/apis/auth.api'
+import Button from 'src/components/Button'
+import path from 'src/constants/path'
 
 type FormData = Schema
 
@@ -19,6 +21,8 @@ export default function Register() {
     resolver: yupResolver(schema)
   })
 
+  const navigate = useNavigate()
+
   const registerAccountMutation = useMutation({
     mutationFn: (body: FormData) => registerAccount(body)
   })
@@ -26,7 +30,9 @@ export default function Register() {
   const onSubmit = handleSubmit((data) => {
     registerAccountMutation.mutate(data, {
       onSuccess: (data) => {
+        navigate('/login')
         toast.success(data.data.message)
+        toast.info('Now you can login to continuos')
       },
       onError: (error) => {
         console.log(error)
@@ -162,16 +168,18 @@ export default function Register() {
       />
 
       <div className='text-center lg:text-left'>
-        <button
+        <Button
           type='submit'
+          isLoading={registerAccountMutation.isPending}
+          disabled={registerAccountMutation.isPending}
           className='text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
         >
           Register
-        </button>
+        </Button>
 
         <p className='mb-12 mt-2 pt-1 text-sm font-semibold'>
           Already have an account?
-          <Link to={'/login'} className='text-red-600 hover:underline'>
+          <Link to={path.login} className='text-red-600 hover:underline'>
             Login
           </Link>
         </p>

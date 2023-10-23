@@ -1,4 +1,3 @@
-import { pick } from 'lodash'
 import type { RegisterOptions, UseFormGetValues } from 'react-hook-form'
 import * as yup from 'yup'
 
