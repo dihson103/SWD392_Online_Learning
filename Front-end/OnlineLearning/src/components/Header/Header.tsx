@@ -6,9 +6,14 @@ import { AppContext } from 'src/contexts/app.context'
 export default function Header() {
   const [isHiddenMegaMenu, setHiddenMegaMenu] = useState<boolean>(true)
   const { isAuthenticated } = useContext(AppContext)
+  const [isHiddenSetting, setHiddenSetting] = useState<boolean>(true)
 
   const handleMegaMenu = () => {
     setHiddenMegaMenu((prev) => !prev)
+  }
+
+  const handleDisplaySetting = (status: boolean) => () => {
+    setHiddenSetting(status)
   }
 
   return (
@@ -38,9 +43,10 @@ export default function Header() {
           )}
 
           {isAuthenticated && (
-            <div className='mr-2'>
+            <div className='mr-2' onBlur={handleDisplaySetting(true)}>
               <img
                 id='avatarButton'
+                onMouseMove={handleDisplaySetting(false)}
                 data-dropdown-toggle='userDropdown'
                 data-dropdown-placement='bottom-start'
                 className='w-8 h-8 rounded-full cursor-pointer'
@@ -50,7 +56,9 @@ export default function Header() {
               {/* Dropdown menu */}
               <div
                 id='userDropdown'
-                className='z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600'
+                className={`z-10 ${
+                  isHiddenSetting ? ' hidden' : ''
+                } bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
               >
                 <div className='px-4 py-3 text-sm text-gray-900 dark:text-white'>
                   <div>Bonnie Green</div>
