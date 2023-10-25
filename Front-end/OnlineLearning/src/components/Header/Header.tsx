@@ -2,19 +2,36 @@ import { Link } from 'react-router-dom'
 import { useState, useContext } from 'react'
 import path from 'src/constants/path'
 import { AppContext } from 'src/contexts/app.context'
+import { Popover } from '@mui/material'
+import { signOut } from 'src/apis/auth.api'
+import { useQuery } from '@tanstack/react-query'
 
 export default function Header() {
   const [isHiddenMegaMenu, setHiddenMegaMenu] = useState<boolean>(true)
   const { isAuthenticated } = useContext(AppContext)
-  const [isHiddenSetting, setHiddenSetting] = useState<boolean>(true)
 
   const handleMegaMenu = () => {
     setHiddenMegaMenu((prev) => !prev)
   }
 
-  const handleDisplaySetting = (status: boolean) => () => {
-    setHiddenSetting(status)
+  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null)
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    setAnchorEl(event.currentTarget)
   }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
+
+  const { refetch } = useQuery({
+    queryKey: ['logout'],
+    queryFn: () => signOut(),
+    enabled: false
+  })
 
   return (
     <nav className='bg-white border-gray-200 dark:bg-gray-900 fixed top-0 left-0 right-0 z-50'>
@@ -43,62 +60,77 @@ export default function Header() {
           )}
 
           {isAuthenticated && (
-            <div className='mr-2' onBlur={handleDisplaySetting(true)}>
-              <img
-                id='avatarButton'
-                onMouseMove={handleDisplaySetting(false)}
-                data-dropdown-toggle='userDropdown'
-                data-dropdown-placement='bottom-start'
-                className='w-8 h-8 rounded-full cursor-pointer'
-                src='https://flowbite.com/docs/images/logo.svg'
-                alt='User dropdown'
-              />
-              {/* Dropdown menu */}
-              <div
-                id='userDropdown'
-                className={`z-10 ${
-                  isHiddenSetting ? ' hidden' : ''
-                } bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
-              >
-                <div className='px-4 py-3 text-sm text-gray-900 dark:text-white'>
-                  <div>Bonnie Green</div>
-                  <div className='font-medium truncate'>name@flowbite.com</div>
-                </div>
-                <ul className='py-2 text-sm text-gray-700 dark:text-gray-200' aria-labelledby='avatarButton'>
-                  <li>
-                    <Link
-                      to='#'
-                      className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
-                    >
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to='#'
-                      className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
-                    >
-                      Settings
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to='#'
-                      className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
-                    >
-                      Earnings
-                    </Link>
-                  </li>
-                </ul>
-                <div className='py-1'>
-                  <Link
-                    to='#'
-                    className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
-                  >
-                    Sign out
-                  </Link>
-                </div>
+            <div className='mr-2'>
+              <div aria-describedby={id} onClick={handleClick}>
+                <img
+                  aria-describedby={id}
+                  data-dropdown-toggle='userDropdown'
+                  data-dropdown-placement='bottom-start'
+                  className='w-8 h-8 rounded-full cursor-pointer'
+                  src='https://flowbite.com/docs/images/logo.svg'
+                  alt='User dropdown'
+                />
               </div>
+
+              <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left'
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right'
+                }}
+              >
+                <div
+                  id='userDropdown'
+                  className={`z-10 bg-white divide-y divide-gray-100 fixed right-5 top-15 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
+                >
+                  <div className='px-4 py-3 text-sm text-gray-900 dark:text-white'>
+                    <div>Bonnie Green</div>
+                    <div className='font-medium truncate'>name@flowbite.com</div>
+                  </div>
+                  <ul className='py-2 text-sm text-gray-700 dark:text-gray-200' aria-labelledby='avatarButton'>
+                    <li>
+                      <Link
+                        to='#'
+                        className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
+                      >
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to='#'
+                        className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
+                      >
+                        Settings
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to='#'
+                        className='block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
+                      >
+                        Earnings
+                      </Link>
+                    </li>
+                  </ul>
+                  <div className='py-1'>
+                    <button
+                      type='button'
+                      onClick={refetch}
+                      className='block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white'
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              </Popover>
             </div>
           )}
 

@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, AxiosError } from 'axios'
 import { toast } from 'react-toastify'
-import { clearAccessToken, getAccessTokenFromLS, saveAccessToken, setProfileToLS } from './auth'
+import { clearTokenAndProfile, getAccessTokenFromLS, saveAccessToken, saveRefeshToken, setProfileToLS } from './auth'
 import { AuthResponse } from 'src/types/auth.type'
 
 class Http {
@@ -36,9 +36,10 @@ class Http {
           this.accessToken = data.data.access_token
           saveAccessToken(this.accessToken)
           setProfileToLS(data.data.user_response)
-        } else if (url === '/logout') {
+          saveRefeshToken(data.data.refresh_token)
+        } else if (url === '/api/auth/logout') {
           this.accessToken = ''
-          clearAccessToken()
+          clearTokenAndProfile()
         }
         return response
       },
