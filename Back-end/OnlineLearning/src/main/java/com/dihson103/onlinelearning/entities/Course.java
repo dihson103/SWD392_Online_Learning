@@ -39,6 +39,8 @@ public class Course {
     @Column(nullable = false)
     private Boolean status;
 
+    private String image;
+
     @OneToMany(mappedBy = "course")
     private List<Discount> discounts;
 

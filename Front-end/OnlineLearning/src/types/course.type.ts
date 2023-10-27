@@ -8,6 +8,7 @@ export interface Course {
   status: boolean
   createdDate: string
   publicDate: string
+  image: string
 }
 
 export type CourseResponse = ApiResponse<Course[]>
