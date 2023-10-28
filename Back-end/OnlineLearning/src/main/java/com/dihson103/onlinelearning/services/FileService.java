@@ -22,7 +22,7 @@ public class FileService {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-        cal.add(Calendar.MINUTE,2);
+        cal.add(Calendar.MINUTE,20);
         return amazonS3.generatePresignedUrl(bucketName,filePath,cal.getTime(),http).toString();
     }
     

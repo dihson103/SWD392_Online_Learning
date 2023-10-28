@@ -17,7 +17,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @PermitAll
-@CrossOrigin(origins = "http://localhost:3000")
 public class AuthenticationController {
 
     private final IAuthenticateService service;
