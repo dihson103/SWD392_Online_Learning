@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { getFileUrl } from 'src/apis/file.api'
 
 interface Props {
   image: string
@@ -9,10 +11,15 @@ interface Props {
 }
 
 export default function Course({ image, courseName, courseId, price, priceWhenSale }: Props) {
+  const { data } = useQuery({
+    queryKey: ['imageAddresses'],
+    queryFn: () => getFileUrl(image)
+  })
+  console.log(data?.data.message)
   return (
-    <div className='w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl'>
+    <div className='w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl' key={courseId}>
       <Link to='#'>
-        <img src={image} alt='Product' className='h-80 w-72 object-cover rounded-t-xl' />
+        <img src={data?.data.message} alt='Product' className='h-80 w-72 object-cover rounded-t-xl' />
         <div className='px-4 py-3 w-72'>
           <span className='text-gray-400 mr-3 uppercase text-xs'>Brand</span>
           <p className='text-lg font-bold text-black truncate block capitalize'>{courseName}</p>
