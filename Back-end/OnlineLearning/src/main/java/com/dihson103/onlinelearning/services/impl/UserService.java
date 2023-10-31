@@ -125,6 +125,7 @@ public class UserService implements IUserService {
         checkUpdateUserValid(oldUser, newUser);
         newUser.setPassword(oldUser.getPassword());
         newUser.setStatus(true);
+        newUser.setRole(oldUser.getRole());
         return newUser;
     }
 
@@ -157,9 +158,15 @@ public class UserService implements IUserService {
         if(changePasswordRequest.isPasswordValid()){
             throw new IllegalArgumentException("New password should not be equal old password.");
         }
-        UserEntity user = userRepository
-                .findByUsernameAndPassword(username, passwordEncoder.encode(changePasswordRequest.getOldPassword()))
-                .orElseThrow(() ->  new IllegalArgumentException("Can not found user."));
+        UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found or inactive."));
+
+        // Check if the provided old password matches the user's current password
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid old password.");
+        }
+
+        // Encode and update the user's password
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
     }
