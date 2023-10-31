@@ -1,7 +1,6 @@
 import { useContext } from 'react'
 import { useRoutes, Outlet, Navigate } from 'react-router-dom'
 import Banner from 'src/components/Banner/Banner'
-import Header from 'src/components/Header'
 import path from 'src/constants/path'
 import { AppContext } from 'src/contexts/app.context'
 import MainLayout from 'src/layouts/MainLayout'
