@@ -1,7 +1,9 @@
 const path = {
   login: '/login',
   register: '/register',
-  profile: '/profile'
+  profile: '/profile',
+  courseDetails: 'courses/:id',
+  user_management: '/users-management'
 }
 
 export default path

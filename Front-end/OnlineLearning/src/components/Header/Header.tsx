@@ -1,14 +1,16 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useContext } from 'react'
 import path from 'src/constants/path'
 import { AppContext } from 'src/contexts/app.context'
 import { Popover } from '@mui/material'
 import { signOut } from 'src/apis/auth.api'
 import { useQuery } from '@tanstack/react-query'
+import { clearTokenAndProfile } from 'src/utils/auth'
 
 export default function Header() {
   const [isHiddenMegaMenu, setHiddenMegaMenu] = useState<boolean>(true)
-  const { isAuthenticated } = useContext(AppContext)
+  const { isAuthenticated, profile, setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
 
   const handleMegaMenu = () => {
     setHiddenMegaMenu((prev) => !prev)
@@ -34,7 +36,11 @@ export default function Header() {
   })
 
   const handleLogout = () => {
+    setIsAuthenticated(false)
+    setProfile(null)
+    clearTokenAndProfile()
     refetch()
+    navigate('/')
   }
 
   return (
@@ -95,8 +101,8 @@ export default function Header() {
                   className={`z-10 bg-white divide-y divide-gray-100 fixed right-5 top-15 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
                 >
                   <div className='px-4 py-3 text-sm text-gray-900 dark:text-white'>
-                    <div>Bonnie Green</div>
-                    <div className='font-medium truncate'>name@flowbite.com</div>
+                    <div>{profile?.username}</div>
+                    <div className='font-medium truncate'>{profile?.email}</div>
                   </div>
                   <ul className='py-2 text-sm text-gray-700 dark:text-gray-200' aria-labelledby='avatarButton'>
                     <li>

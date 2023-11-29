@@ -1,7 +1,6 @@
 export enum Role {
-  ADMIN,
   USER,
+  ADMIN,
   ADMIN_COURSE,
-  ADMIN_USER,
-  ADMIN_NEW
+  ADMIN_USER
 }

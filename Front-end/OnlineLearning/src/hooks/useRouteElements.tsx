@@ -2,9 +2,11 @@ import { useContext } from 'react'
 import { useRoutes, Outlet, Navigate } from 'react-router-dom'
 import Banner from 'src/components/Banner/Banner'
 import path from 'src/constants/path'
+import { Role } from 'src/constants/role'
 import { AppContext } from 'src/contexts/app.context'
 import MainLayout from 'src/layouts/MainLayout'
 import RegisterLayout from 'src/layouts/RegisterLayout'
+import CourseDetails from 'src/pages/CourseDetails'
 import CourseList from 'src/pages/CourseList'
 import Login from 'src/pages/Login'
 import NotFound from 'src/pages/NotFound'
@@ -22,6 +24,23 @@ const RejectedRoute = () => {
   return !isAuthenticated ? <Outlet /> : <Navigate to={'/'} />
 }
 
+const AdminRoute = () => {
+  const { profile } = useContext(AppContext)
+  return profile?.role === Role[Role.ADMIN] ? <Outlet /> : <Navigate to={'/'} />
+}
+
+const AdminUserRoute = () => {
+  const { profile } = useContext(AppContext)
+  const isHavePermission = profile?.role === Role[Role.ADMIN] || profile?.role === Role[Role.ADMIN_USER]
+  return isHavePermission ? <Outlet /> : <Navigate to={'/'} />
+}
+
+const AdminCourseRoute = () => {
+  const { profile } = useContext(AppContext)
+  const isHavePermission = profile?.role === Role[Role.ADMIN] || profile?.role === Role[Role.ADMIN_COURSE]
+  return isHavePermission ? <Outlet /> : <Navigate to={'/'} />
+}
+
 export default function useRouteElements() {
   const routeElements = useRoutes([
     {
@@ -31,6 +50,14 @@ export default function useRouteElements() {
         <MainLayout>
           <Banner />
           <CourseList />
+        </MainLayout>
+      )
+    },
+    {
+      path: path.courseDetails,
+      element: (
+        <MainLayout>
+          <CourseDetails />
         </MainLayout>
       )
     },
@@ -67,12 +94,18 @@ export default function useRouteElements() {
       ]
     },
     {
-      path: '/users-management',
-      element: (
-        <MainLayout>
-          <UserManagement />
-        </MainLayout>
-      )
+      path: '',
+      element: <AdminUserRoute />,
+      children: [
+        {
+          path: path.user_management,
+          element: (
+            <MainLayout>
+              <UserManagement />
+            </MainLayout>
+          )
+        }
+      ]
     },
     {
       path: '*',

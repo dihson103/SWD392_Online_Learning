@@ -56,19 +56,30 @@ export const schema = yup.object({
   username: yup.string().required('Username is required'),
   phone: yup
     .string()
-    .required('Phone is requierd')
-    .matches(/^0\d{9}$/, 'Phone number have 10 numbers and start with 0'),
+    .required('Phone is required')
+    .matches(/^0\d{9}$/, 'Phone number must have 10 digits and start with 0'),
   password: yup
     .string()
     .required('Password is required')
-    .min(5, 'Password must have from 5 to 160 characters')
-    .max(160, 'Password must have from 5 to 160 characters'),
+    .min(5, 'Password must have between 5 and 160 characters')
+    .max(160, 'Password must have between 5 and 160 characters'),
   confirm_password: yup
     .string()
     .required('Confirm Password is required')
-    .oneOf([yup.ref('password')], 'Confirm password is not true'),
+    .oneOf([yup.ref('password')], 'Confirm password does not match'),
   address: yup.string(),
   dob: yup.string()
 })
 
 export type Schema = yup.InferType<typeof schema>
+
+export const userSchema = yup.object({
+  email: schema.fields.email as yup.StringSchema<string>,
+  username: schema.fields.username as yup.StringSchema<string>,
+  phone: schema.fields.phone as yup.StringSchema<string>,
+  address: schema.fields.address as yup.StringSchema<string>,
+  dob: schema.fields.dob as yup.StringSchema<string>,
+  role: yup.string().required('Role is required')
+})
+
+export type UserSchema = yup.InferType<typeof userSchema>

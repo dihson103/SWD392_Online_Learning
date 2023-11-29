@@ -11,6 +11,8 @@ export interface Course {
   image: string
 }
 
-export type CourseResponse = ApiResponse<Course[]>
+export type CoursesResponse = ApiResponse<Course[]>
+
+export type CourseResponse = ApiResponse<Course>
 
 export type CourseRequest = Omit<Course, 'id'>

@@ -105,6 +105,8 @@ export default function Register() {
         type='text'
         errorMessage={errors.username?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Username'
       />
 
@@ -115,6 +117,8 @@ export default function Register() {
         type='email'
         errorMessage={errors.email?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Email'
       />
 
@@ -125,6 +129,8 @@ export default function Register() {
         type='password'
         errorMessage={errors.password?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Password'
       />
 
@@ -135,6 +141,8 @@ export default function Register() {
         type='password'
         errorMessage={errors.confirm_password?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Confirm password'
       />
 
@@ -145,6 +153,8 @@ export default function Register() {
         type='text'
         errorMessage={errors.phone?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Phone'
       />
 
@@ -155,6 +165,8 @@ export default function Register() {
         type='text'
         errorMessage={errors.address?.message}
         register={register}
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         placeholder='Address'
       />
 
@@ -163,6 +175,8 @@ export default function Register() {
         label='Date of birth'
         name='dob'
         type='date'
+        labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+        inputClass='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
         errorMessage={errors.dob?.message}
         register={register}
       />

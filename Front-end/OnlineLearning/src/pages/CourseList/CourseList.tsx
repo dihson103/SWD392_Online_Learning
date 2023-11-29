@@ -24,21 +24,16 @@ export default function CourseList() {
           id='Projects'
           className='w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5'
         >
-          {courses?.map(
-            (
-              course,
-              index // Use map to iterate through courses
-            ) => (
-              <Course
-                key={index} // Add a unique key
-                image={course.image}
-                courseName={course.courseName} // Replace with actual course data
-                courseId={course.id} // Replace with actual course data
-                price={course.price} // Replace with actual course data
-                priceWhenSale={course.price} // Replace with actual course data
-              />
-            )
-          )}
+          {courses?.map((course) => (
+            <Course
+              key={course.id}
+              image={course.image}
+              courseName={course.courseName}
+              courseId={course.id}
+              price={course.price}
+              priceWhenSale={course.price}
+            />
+          ))}
         </section>
         <div className='text-center p-5'>
           <button

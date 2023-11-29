@@ -1,3 +1,5 @@
+import { ApiResponse } from './utils.type'
+
 export interface User {
   id: number
   username: string
@@ -5,6 +7,7 @@ export interface User {
   dob: string
   phone: string
   address: string
+  role: string
 }
 
 export interface RegisterRequest {
@@ -15,3 +18,5 @@ export interface RegisterRequest {
   address?: string | undefined
   password: string
 }
+
+export type UsersResponse = ApiResponse<User[]>

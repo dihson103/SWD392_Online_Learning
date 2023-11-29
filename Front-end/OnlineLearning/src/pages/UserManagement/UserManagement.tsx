@@ -1,16 +1,65 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { deleteUser, getAllUsers } from 'src/apis/user.api'
+import UserRow from './UserRow'
+import { User } from 'src/types/user.type'
+import UserForm from './UserForm'
+import { toast } from 'react-toastify'
+import UserFormStatus from 'src/constants/userFormStatus'
+import { UserSchema } from 'src/utils/rules'
+
+const initialFormData: UserSchema = {
+  email: '',
+  address: '',
+  dob: '',
+  phone: '',
+  username: '',
+  role: 'USER'
+}
 
 export default function UserManagement() {
   const [isEdit, setIsEdit] = useState<boolean>(false)
   const [isDelete, setIsDelete] = useState<boolean>(false)
+  const [formDatatState, setFormDatatState] = useState<User | UserSchema>(initialFormData)
+  const [idDelete, setIdDelete] = useState<number>(0)
 
-  const handleDisplayForm = (status: boolean) => () => {
-    setIsEdit(status)
+  const handleDisplayForm = (status: UserFormStatus, userData: User | UserSchema) => () => {
+    setFormDatatState(() => userData)
+    if (status === UserFormStatus.Display) {
+      setIsEdit(true)
+    } else if (status === UserFormStatus.Hidden) {
+      setIsEdit(false)
+    } else {
+      setIsEdit(false)
+      refetch()
+    }
   }
 
-  const handleDisplayConfirmDelete = (status: boolean) => () => {
+  const handleDisplayConfirmDelete = (status: boolean, userId: number) => () => {
+    console.log('display', status)
+    setIdDelete(userId)
     setIsDelete(status)
+  }
+
+  const { data, refetch } = useQuery({
+    queryKey: ['users'],
+    queryFn: getAllUsers
+  })
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: number) => deleteUser(userId)
+  })
+
+  const handleDeleteUser = () => {
+    deleteUserMutation.mutate(idDelete, {
+      onSuccess: (data) => {
+        handleDisplayConfirmDelete(false, 0)()
+        refetch()
+        toast.success(data.data.message)
+      }
+    })
   }
 
   return (
@@ -148,6 +197,7 @@ export default function UserManagement() {
               <button
                 type='button'
                 data-modal-toggle='add-user-modal'
+                onClick={handleDisplayForm(UserFormStatus.Display, initialFormData)}
                 className='inline-flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
               >
                 <svg
@@ -217,19 +267,19 @@ export default function UserManagement() {
                       scope='col'
                       className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                     >
-                      Biography
+                      Role
                     </th>
                     <th
                       scope='col'
                       className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                     >
-                      Position
+                      Date of birth
                     </th>
                     <th
                       scope='col'
                       className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                     >
-                      Country
+                      Address
                     </th>
                     <th
                       scope='col'
@@ -246,90 +296,14 @@ export default function UserManagement() {
                   </tr>
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700'>
-                  <tr className='hover:bg-gray-100 dark:hover:bg-gray-700'>
-                    <td className='w-4 p-4'>
-                      <div className='flex items-center'>
-                        <input
-                          id='checkbox-1'
-                          aria-describedby='checkbox-1'
-                          type='checkbox'
-                          className='w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600'
-                        />
-                        <label htmlFor='checkbox-1' className='sr-only'>
-                          checkbox
-                        </label>
-                      </div>
-                    </td>
-                    <td className='flex items-center p-4 mr-12 space-x-6 whitespace-nowrap'>
-                      <img
-                        className='w-10 h-10 rounded-full'
-                        src='https://flowbite-admin-dashboard.vercel.app/images/users/neil-sims.png'
-                        alt='name'
-                      />
-                      <div className='text-sm font-normal text-gray-500 dark:text-gray-400'>
-                        <div className='text-base font-semibold text-gray-900 dark:text-white'>Nguyen Dinh Son</div>
-                        <div className='text-sm font-normal text-gray-500 dark:text-gray-400'>
-                          dinhson1032001@gmail.com
-                        </div>
-                      </div>
-                    </td>
-                    <td className='max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400'>
-                      I love working with React and Flowbites to create efficient and user-friendly interfaces. In my
-                      spare time, I enjoys baking, hiking, and spending time with my family.
-                    </td>
-                    <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                      Front-end developer
-                    </td>
-                    <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                      Viet Nam
-                    </td>
-                    <td className='p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white'>
-                      <div className='flex items-center'>Active</div>
-                    </td>
-                    <td className='p-4 space-x-2 whitespace-nowrap'>
-                      <button
-                        type='button'
-                        onClick={handleDisplayForm(true)}
-                        data-modal-toggle='edit-user-modal'
-                        className='inline-flex items-center text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
-                      >
-                        <svg
-                          className='w-4 h-4 mr-2'
-                          fill='currentColor'
-                          viewBox='0 0 20 20'
-                          xmlns='http://www.w3.org/2000/svg'
-                        >
-                          <path d='M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z' />
-                          <path
-                            fillRule='evenodd'
-                            d='M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z'
-                            clipRule='evenodd'
-                          />
-                        </svg>
-                        Edit user
-                      </button>
-                      <button
-                        type='button'
-                        onClick={handleDisplayConfirmDelete(true)}
-                        data-modal-toggle='delete-user-modal'
-                        className='inline-flex items-center text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
-                      >
-                        <svg
-                          className='w-4 h-4 mr-2'
-                          fill='currentColor'
-                          viewBox='0 0 20 20'
-                          xmlns='http://www.w3.org/2000/svg'
-                        >
-                          <path
-                            fillRule='evenodd'
-                            d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                            clipRule='evenodd'
-                          />
-                        </svg>
-                        Delete user
-                      </button>
-                    </td>
-                  </tr>
+                  {data?.data?.data?.map((user, index) => (
+                    <UserRow
+                      key={index}
+                      profile={user}
+                      handleDisplayForm={handleDisplayForm}
+                      handleDisplayConfirmDelete={handleDisplayConfirmDelete}
+                    />
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -415,147 +389,11 @@ export default function UserManagement() {
         } items-center justify-center flex overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full`}
         id='edit-user-modal'
       >
-        <div className='relative w-full h-full max-w-2xl px-4 md:h-auto'>
-          <div className='relative bg-white rounded-lg shadow dark:bg-gray-800'>
-            <div className='flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700'>
-              <h3 className='text-xl font-semibold dark:text-white'>Edit user</h3>
-              <button
-                type='button'
-                onClick={handleDisplayForm(false)}
-                className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white'
-                data-modal-toggle='edit-user-modal'
-              >
-                <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
-                  <path
-                    fillRule='evenodd'
-                    d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-                    clipRule='evenodd'
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className='p-6 space-y-6'>
-              <form action='#'>
-                <div className='grid grid-cols-6 gap-6'>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label
-                      htmlFor='first-name'
-                      className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-                    >
-                      First Name
-                    </label>
-                    <input
-                      type='text'
-                      name='first-name'
-                      defaultValue='Bonnie'
-                      id='first-name'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='Bonnie'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label htmlFor='last-name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                      Last Name
-                    </label>
-                    <input
-                      type='text'
-                      name='last-name'
-                      defaultValue='Green'
-                      id='last-name'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='Green'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                      Email
-                    </label>
-                    <input
-                      type='email'
-                      name='email'
-                      defaultValue='bonnie@flowbite.com'
-                      id='email'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='example@company.com'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label htmlFor='position' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                      Position
-                    </label>
-                    <input
-                      type='text'
-                      name='position'
-                      defaultValue='React Developer'
-                      id='position'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='e.g. React developer'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label
-                      htmlFor='current-password'
-                      className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-                    >
-                      Current Password
-                    </label>
-                    <input
-                      type='password'
-                      name='current-password'
-                      defaultValue='••••••••'
-                      id='current-password'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='••••••••'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6 sm:col-span-3'>
-                    <label
-                      htmlFor='new-password'
-                      className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-                    >
-                      New Password
-                    </label>
-                    <input
-                      type='password'
-                      name='new-password'
-                      defaultValue='••••••••'
-                      id='new-password'
-                      className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='••••••••'
-                      required
-                    />
-                  </div>
-                  <div className='col-span-6'>
-                    <label htmlFor='biography' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                      Biography
-                    </label>
-                    <textarea
-                      id='biography'
-                      rows={4}
-                      className='block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                      placeholder='👨‍💻Full-stack web developer. Open-source contributor.'
-                      defaultValue={'👨‍💻Full-stack web developer. Open-source contributor.'}
-                    />
-                  </div>
-                </div>
-              </form>
-            </div>
-            {/* Modal footer */}
-            <div className='items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700'>
-              <button
-                className='text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
-                type='submit'
-              >
-                Save all
-              </button>
-            </div>
-          </div>
-        </div>
+        <UserForm
+          formDatatState={formDatatState}
+          handleDisplayForm={handleDisplayForm}
+          initialFormData={initialFormData}
+        />
       </div>
 
       <div
@@ -569,7 +407,7 @@ export default function UserManagement() {
           <div className='relative bg-white rounded-lg shadow dark:bg-gray-700'>
             <button
               type='button'
-              onClick={handleDisplayConfirmDelete(false)}
+              onClick={handleDisplayConfirmDelete(false, 0)}
               className='absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white'
               data-modal-hide='popup-modal'
             >
@@ -607,18 +445,19 @@ export default function UserManagement() {
                 />
               </svg>
               <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
-                Are you sure you want to delete this product?
+                Are you sure you want to delete user has id: {idDelete}?
               </h3>
               <button
                 data-modal-hide='popup-modal'
                 type='button'
+                onClick={handleDeleteUser}
                 className='text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2'
               >
                 Yes, I'm sure
               </button>
               <button
                 data-modal-hide='popup-modal'
-                onClick={handleDisplayConfirmDelete(false)}
+                onClick={handleDisplayConfirmDelete(false, 0)}
                 type='button'
                 className='text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600'
               >

@@ -7,3 +7,5 @@ export const registerAccount = (body: RegisterRequest) => http.post<RegisterResp
 export const login = (body: { email: string; password: string }) => http.post<AuthResponse>('api/auth/login', body)
 
 export const signOut = () => http.get('/api/auth/logout')
+
+export const getRefreshToken = (token: string) => http.post<AuthResponse>('/api/auth/refresh-access-token', { token })
