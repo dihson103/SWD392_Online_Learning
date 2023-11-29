@@ -67,7 +67,11 @@ export default function useRouteElements() {
       children: [
         {
           path: path.profile,
-          element: <Profile />
+          element: (
+            <MainLayout>
+              <Profile />
+            </MainLayout>
+          )
         }
       ]
     },

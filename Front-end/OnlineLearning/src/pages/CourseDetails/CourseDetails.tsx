@@ -3,9 +3,12 @@ import { useParams } from 'react-router-dom'
 import { getCourseDetail } from 'src/apis/course.api'
 import { getLessonsByCourse } from 'src/apis/lesson.api'
 import Lessons from 'src/components/Lessons'
+import { getIdFromNameId } from 'src/utils/utils'
 
 export default function CourseDetails() {
-  const { id } = useParams()
+  const { nameId } = useParams()
+
+  const id = getIdFromNameId(nameId as string)
 
   const isIdValid = id !== undefined && /^[\d+]+$/.test(id)
 
