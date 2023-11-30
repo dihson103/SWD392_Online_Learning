@@ -1,4 +1,4 @@
-import { UsersResponse, User } from 'src/types/user.type'
+import { UsersResponse, User, ChangePasswordRequest } from 'src/types/user.type'
 import { ApiResponse } from 'src/types/utils.type'
 import http from 'src/utils/http'
 import { UserSchema } from 'src/utils/rules'
@@ -14,3 +14,6 @@ export const addUser = (data: UserSchema) =>
 
 export const editUserProfile = (username: string, data: User) =>
   http.put<ApiResponse<null>>(`api/users/${username}`, data)
+
+export const userChangePassword = (username: string, body: ChangePasswordRequest) =>
+  http.put<ApiResponse<null>>(`api/users/change-password/${username}`, body)

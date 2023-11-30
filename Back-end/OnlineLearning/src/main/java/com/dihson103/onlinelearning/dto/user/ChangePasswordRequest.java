@@ -15,7 +15,7 @@ public class ChangePasswordRequest {
     private String oldPassword;
 
     @NotBlank(message = "Password should not be blank.")
-    @Length(min = 6, max = 16, message = "Password should has from 6 to 16 characters.")
+    @Length(min = 5, max = 16, message = "Password should has from 6 to 16 characters.")
     private String newPassword;
 
     public Boolean isPasswordValid(){

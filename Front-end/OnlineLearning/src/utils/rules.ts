@@ -83,3 +83,14 @@ export const userSchema = yup.object({
 })
 
 export type UserSchema = yup.InferType<typeof userSchema>
+
+export const changePasswordSchema = yup.object({
+  oldPassword: yup.string().required('Password is required'),
+  newPassword: schema.fields.password as yup.StringSchema<string>,
+  confirm_password: yup
+    .string()
+    .required('Confirm Password is required')
+    .oneOf([yup.ref('newPassword')], 'Confirm password does not match')
+})
+
+export type ChangePasswordSchema = yup.InferType<typeof changePasswordSchema>

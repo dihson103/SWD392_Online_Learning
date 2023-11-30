@@ -20,3 +20,8 @@ export interface RegisterRequest {
 }
 
 export type UsersResponse = ApiResponse<User[]>
+
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
+}
