@@ -12,6 +12,7 @@ interface Props {
   label: string
   labelClass: string
   inputClass: string
+  isReadOnly?: boolean
 }
 
 export default function Input({
@@ -24,7 +25,8 @@ export default function Input({
   rules,
   label,
   labelClass,
-  inputClass
+  inputClass,
+  isReadOnly = false
 }: Props) {
   return (
     <div className={className} data-te-input-wrapper-init>
@@ -36,6 +38,7 @@ export default function Input({
         id={name}
         {...register(name, rules)}
         className={inputClass}
+        readOnly={isReadOnly}
         placeholder={placeholder}
         required
       />

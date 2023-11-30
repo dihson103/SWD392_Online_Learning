@@ -1,6 +1,49 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation } from '@tanstack/react-query'
+
+import { getProfileFromLS } from 'src/utils/auth'
+import { UserSchema, userSchema } from 'src/utils/rules'
+import Input from 'src/components/Input'
+import { User } from 'src/types/user.type'
+import { editUserProfile } from 'src/apis/user.api'
 
 export default function Profile() {
+  const { username } = useParams()
+  const navigate = useNavigate()
+  const editProfileMutation = useMutation({
+    mutationFn: (body: User) => editUserProfile(username, body)
+  })
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors }
+  } = useForm<UserSchema>({
+    resolver: yupResolver(userSchema)
+  })
+
+  useEffect(() => {
+    const profileFromLS = getProfileFromLS()
+
+    if (username && profileFromLS?.username !== username) {
+      navigate('/')
+    } else {
+      setValue('username', profileFromLS.username)
+      setValue('email', profileFromLS.email)
+      setValue('role', profileFromLS.role)
+      setValue('address', profileFromLS.address)
+      setValue('dob', profileFromLS.dob ? profileFromLS.dob.substring(0, 10) : '')
+      setValue('phone', profileFromLS.phone)
+    }
+  }, [username, navigate, setValue])
+
+  const handleChangeGeneralInfo = handleSubmit((data) => {
+    console.log('form data', data)
+  })
+
   return (
     <div className='grid grid-cols-1 px-4 pt-6 xl:grid-cols-3 xl:gap-4 dark:bg-gray-900 mt-20 ml-20 mr-20'>
       <div className='mb-4 col-span-full xl:mb-2'>
@@ -109,170 +152,79 @@ export default function Profile() {
         <div>
           <div className='p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800'>
             <h3 className='mb-4 text-xl font-semibold dark:text-white'>General information</h3>
-            <form action='#'>
+            <form onSubmit={handleChangeGeneralInfo}>
               <div className='grid grid-cols-6 gap-6'>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='first-name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    First Name
-                  </label>
-                  <input
-                    type='text'
-                    name='first-name'
-                    id='first-name'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='Bonnie'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='last-name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Last Name
-                  </label>
-                  <input
-                    type='text'
-                    name='last-name'
-                    id='last-name'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='Green'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='country' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Country
-                  </label>
-                  <input
-                    type='text'
-                    name='country'
-                    id='country'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='United States'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='city' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    City
-                  </label>
-                  <input
-                    type='text'
-                    name='city'
-                    id='city'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='e.g. San Francisco'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='address' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Address
-                  </label>
-                  <input
-                    type='text'
-                    name='address'
-                    id='address'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='e.g. California'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='email' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Email
-                  </label>
-                  <input
-                    type='email'
-                    name='email'
-                    id='email'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='example@company.com'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label
-                    htmlFor='phone-number'
-                    className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-                  >
-                    Phone Number
-                  </label>
-                  <input
-                    type='number'
-                    name='phone-number'
-                    id='phone-number'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='e.g. +(12)3456 789'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='birthday' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Birthday
-                  </label>
-                  <input
-                    type='number'
-                    name='birthday'
-                    id='birthday'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='15/08/1990'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label
-                    htmlFor='organization'
-                    className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
-                  >
-                    Organization
-                  </label>
-                  <input
-                    type='text'
-                    name='organization'
-                    id='organization'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='Company Name'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='role' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Role
-                  </label>
-                  <input
-                    type='text'
-                    name='role'
-                    id='role'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='React Developer'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='department' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Department
-                  </label>
-                  <input
-                    type='text'
-                    name='department'
-                    id='department'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder='Development'
-                    required
-                  />
-                </div>
-                <div className='col-span-6 sm:col-span-3'>
-                  <label htmlFor='zip-code' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-                    Zip/postal code
-                  </label>
-                  <input
-                    type='number'
-                    name='zip-code'
-                    id='zip-code'
-                    className='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    placeholder={'123456'}
-                    required
-                  />
-                </div>
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Username'
+                  name='username'
+                  type='text'
+                  errorMessage={errors.username?.message}
+                  isReadOnly
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Username'
+                />
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Date of birth'
+                  name='dob'
+                  type='date'
+                  errorMessage={errors.dob?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Date of birth'
+                />
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Email'
+                  name='email'
+                  type='email'
+                  errorMessage={errors.email?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Email'
+                />
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Address'
+                  name='address'
+                  type='text'
+                  errorMessage={errors.address?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Address'
+                />
+
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Phone number'
+                  name='phone'
+                  type='text'
+                  errorMessage={errors.phone?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Phone number'
+                />
+
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Role'
+                  name='role'
+                  type='text'
+                  errorMessage={errors.role?.message}
+                  isReadOnly
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Role'
+                />
+
                 <div className='col-span-6 sm:col-full'>
                   <button
                     className='text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2 text-center'

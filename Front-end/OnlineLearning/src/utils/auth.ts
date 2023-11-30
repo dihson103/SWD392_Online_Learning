@@ -18,7 +18,7 @@ export const clearTokenAndProfile = () => {
 
 export const getRefreshFromLS = () => localStorage.getItem('refresh_token')
 
-export const getProfileFromLS = () => {
+export const getProfileFromLS = (): User => {
   const result = localStorage.getItem('profile')
   return result ? JSON.parse(result) : null
 }

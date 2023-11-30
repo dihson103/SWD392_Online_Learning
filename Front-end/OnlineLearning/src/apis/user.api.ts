@@ -11,3 +11,6 @@ export const updateUser = (data: User) => http.put<ApiResponse<null>>(`api/users
 
 export const addUser = (data: UserSchema) =>
   http.post<ApiResponse<null>>('api/users', { ...data, password: data.email })
+
+export const editUserProfile = (username: string, data: User) =>
+  http.put<ApiResponse<null>>(`api/users/${username}`, data)

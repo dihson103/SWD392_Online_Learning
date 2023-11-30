@@ -30,7 +30,7 @@ export default function UserForm({ handleDisplayForm, initialFormData, formDatat
   })
 
   useEffect(() => {
-    setUserRole(formDatatState.role ? 'USER' : formDatatState.role)
+    setUserRole(formDatatState.role ? formDatatState.role : 'USER')
   }, [formDatatState.role, formDatatState])
 
   useEffect(() => {
