@@ -155,7 +155,7 @@ public class UserService implements IUserService {
 
     @Override
     public void changePassword(String username, ChangePasswordRequest changePasswordRequest) {
-        if(changePasswordRequest.isPasswordValid()){
+        if(!changePasswordRequest.isPasswordValid()){
             throw new IllegalArgumentException("New password should not be equal old password.");
         }
         UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username)

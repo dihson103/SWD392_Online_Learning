@@ -1,5 +1,6 @@
 package com.dihson103.onlinelearning.exceptions;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.dihson103.onlinelearning.dto.common.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import static org.springframework.http.HttpStatus.*;
 public class MyExceptionHandle {
 
     @ExceptionHandler(WrongTokenException.class)
-    @ResponseStatus(UNAUTHORIZED)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
     public Map<String, String> handleWrongTokenException(WrongTokenException exception){
         Map<String, String> errors = new HashMap<>();
         errors.put("message", exception.getMessage());
@@ -63,11 +64,9 @@ public class MyExceptionHandle {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(UNPROCESSABLE_ENTITY)
-    public Map<String, String> handleException(Exception exception){
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", exception.getMessage());
+    public ApiResponse handleException(Exception exception){
         exception.printStackTrace();
-        return errors;
+        return ApiResponse.builder().message(exception.getMessage()).build();
     }
 
 }

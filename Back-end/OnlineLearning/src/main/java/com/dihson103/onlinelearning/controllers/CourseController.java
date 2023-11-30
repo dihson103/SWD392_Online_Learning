@@ -11,6 +11,8 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -111,7 +113,7 @@ public class CourseController {
                 .build();
     }
 
-    @GetMapping()
+    @GetMapping("search/")
     @ResponseStatus(OK)
     @PermitAll
     public ApiResponse<List<CourseResponse>> searchCourses(@RequestParam("search-value") String searchValue){

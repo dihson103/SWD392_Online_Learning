@@ -57,22 +57,25 @@ public class AuthenticateService implements IAuthenticateService {
     }
 
     @Override
-    public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(AUTHORIZATION);
+    public AuthenticationResponse refreshToken(String authHeader) throws IOException {
         final String refreshToken;
         final String username;
         if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
             throw new WrongTokenException("Token is wrong.");
         }
-        refreshToken = authHeader.substring(7);
-        Algorithm algorithm = Algorithm.HMAC256(security_key.getBytes());
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(refreshToken);
-        username = decodedJWT.getSubject();
 
-        UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username).orElseThrow();
+        try{
+            refreshToken = authHeader.substring(7);
+            Algorithm algorithm = Algorithm.HMAC256(security_key.getBytes());
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            DecodedJWT decodedJWT = verifier.verify(refreshToken);
+            username = decodedJWT.getSubject();
 
-        return createTokenHandle(user);
+            UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username).orElseThrow();
+            return createTokenHandle(user);
+        }catch (Exception exception){
+            throw new WrongTokenException("Token is wrong.");
+        }
     }
 
     private AuthenticationResponse createTokenHandle(UserEntity user){

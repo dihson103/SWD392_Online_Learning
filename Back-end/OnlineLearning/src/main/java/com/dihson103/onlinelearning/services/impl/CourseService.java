@@ -9,6 +9,7 @@ import com.dihson103.onlinelearning.entities.Course;
 import com.dihson103.onlinelearning.entities.Lesson;
 import com.dihson103.onlinelearning.entities.Session;
 import com.dihson103.onlinelearning.repositories.CourseRepository;
+import com.dihson103.onlinelearning.repositories.EnrollRepository;
 import com.dihson103.onlinelearning.repositories.LessonRepository;
 import com.dihson103.onlinelearning.repositories.SessionRepository;
 import com.dihson103.onlinelearning.services.FiltersSpecification;
@@ -31,6 +32,7 @@ public class CourseService implements ICourseService {
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final SessionRepository sessionRepository;
+    private final EnrollRepository enrollRepository;
     private final ModelMapper modelMapper;
     private final FiltersSpecification<Course> filtersSpecification;
 
@@ -53,8 +55,7 @@ public class CourseService implements ICourseService {
         course.setCourseName(courseRequest.getCourseName());
         course.setPrice(courseRequest.getPrice());
         course.setTitle(courseRequest.getTitle());
-        course.setImage(course.getImage());
-        course.setStatus(false);
+        course.setImage(courseRequest.getImage());
         courseRepository.save(course);
     }
 
@@ -68,7 +69,8 @@ public class CourseService implements ICourseService {
     public CourseResponse getCourseByIdAndStatusIsTrue(Integer courseId) {
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find course has id: " + courseId));
-        return modelMapper.map(course, CourseResponse.class);
+        CourseResponse courseResponse = modelMapper.map(course, CourseResponse.class);
+        return courseResponse;
     }
 
     @Override

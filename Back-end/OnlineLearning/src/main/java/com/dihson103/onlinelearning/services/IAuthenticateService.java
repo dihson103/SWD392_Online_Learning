@@ -11,6 +11,6 @@ public interface IAuthenticateService {
 
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
 
-    AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    AuthenticationResponse refreshToken(String refreshToken) throws IOException;
 
 }

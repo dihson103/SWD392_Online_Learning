@@ -6,6 +6,7 @@ import com.dihson103.onlinelearning.dto.session.SessionRequest;
 import com.dihson103.onlinelearning.dto.session.SessionResponse;
 import com.dihson103.onlinelearning.dto.user.UserResponse;
 import com.dihson103.onlinelearning.services.ISessionService;
+import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -59,8 +60,9 @@ public class SessionController {
                 .build();
     }
 
-    @GetMapping("lesson-id/lesson")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
+    @GetMapping("{lesson-id}/lesson")
+    @ResponseStatus(OK)
+    @PermitAll
     public ApiResponse<List<SessionResponse>> getSessionsByLesson(@PathVariable("lesson-id") Integer lessonId){
         List<SessionResponse> sessionResponses = service.getSessionsActiveByLesson(lessonId);
         return ApiResponse.<List<SessionResponse>>builder()

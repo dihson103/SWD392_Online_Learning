@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.dihson103.onlinelearning.entities.Role.ADMIN;
+import static com.dihson103.onlinelearning.entities.Role.ADMIN_COURSE;
+
 @Service
 @RequiredArgsConstructor
 public class EnrollService implements IEnrollService {
@@ -22,6 +25,7 @@ public class EnrollService implements IEnrollService {
     private final EnrollRepository enrollRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final FileService fileService;
     private final ModelMapper modelMapper;
     private final FiltersSpecification<Enroll> filtersSpecification;
 
@@ -71,9 +75,36 @@ public class EnrollService implements IEnrollService {
                 .toList();
     }
 
+    @Override
+    public List<EnrollResponse> searchEnrolledCourses(String username, String searchValue) {
+        List<Enroll> enrolls = enrollRepository.getEnrollsByUsernameAndSearch(username, searchValue);
+        return enrolls.stream()
+                .map(this::apply)
+                .toList();
+    }
+
+    @Override
+    public void checkVideoPermission(String username, Integer courseId) {
+        UserEntity user = userRepository.findByUsernameAndStatusIsTrue(username)
+                .orElseThrow(() ->  new IllegalArgumentException("Can not find user."));
+        if(user.getRole().equals(ADMIN) || user.getRole().equals(ADMIN_COURSE)){
+            return;
+        }
+        Enroll enroll = enrollRepository.getEnrollByUsernameAndCourse(username, courseId)
+                .orElseThrow(() -> new IllegalArgumentException("User was not enrolled this course."));
+    }
+
+    @Override
+    public Boolean checkIsUserEnrolled(String username, Integer courseId) {
+        Enroll enroll = enrollRepository.getEnrollByUsernameAndCourse(username, courseId).orElse(null);
+        return enroll != null;
+    }
+
     private EnrollResponse apply(Enroll enroll) {
+        Course course = enroll.getCourse();
+//        course.setImage(fileService.generatePreSignedUrl(course.getImage(), HttpMethod.GET));
         return EnrollResponse.builder()
-                .courseResponse(modelMapper.map(enroll.getCourse(), CourseResponse.class))
+                .courseResponse(modelMapper.map(course, CourseResponse.class))
                 .enrollDate(enroll.getEnrollDate())
                 .price(enroll.getPrice())
                 .build();
