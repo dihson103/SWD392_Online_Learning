@@ -8,6 +8,7 @@ import MainLayout from 'src/layouts/MainLayout'
 import RegisterLayout from 'src/layouts/RegisterLayout'
 import CourseDetails from 'src/pages/CourseDetails'
 import CourseList from 'src/pages/CourseList'
+import CourseManagement from 'src/pages/CourseManagement'
 import Login from 'src/pages/Login'
 import NotFound from 'src/pages/NotFound'
 import Profile from 'src/pages/Profile'
@@ -106,6 +107,14 @@ export default function useRouteElements() {
           element: (
             <MainLayout>
               <UserManagement />
+            </MainLayout>
+          )
+        },
+        {
+          path: path.course_management,
+          element: (
+            <MainLayout>
+              <CourseManagement />
             </MainLayout>
           )
         }
