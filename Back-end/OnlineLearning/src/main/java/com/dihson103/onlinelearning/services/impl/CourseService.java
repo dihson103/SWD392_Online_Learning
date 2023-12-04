@@ -116,7 +116,16 @@ public class CourseService implements ICourseService {
 
     @Override
     public List<CourseResponse> searchCourses(String searchValue) {
-        List<Course> courses = courseRepository.findByStatusAndCourseName(searchValue);
+        List<Course> courses = courseRepository.findByStatusAndCourseName(searchValue, false);
+        return courses
+                .stream()
+                .map(course -> modelMapper.map(course, CourseResponse.class))
+                .toList();
+    }
+
+    @Override
+    public List<CourseResponse> searchCourses(String searchValue, Boolean status) {
+        List<Course> courses = courseRepository.findByStatusAndCourseName(searchValue, status);
         return courses
                 .stream()
                 .map(course -> modelMapper.map(course, CourseResponse.class))

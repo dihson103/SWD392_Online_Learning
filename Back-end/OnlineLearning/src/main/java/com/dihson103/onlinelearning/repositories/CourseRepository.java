@@ -22,8 +22,10 @@ public interface CourseRepository extends JpaRepository<Course, Integer>, JpaSpe
     List<Course> findTopNewest(Pageable pageable);
 
     @Query("""
-    SELECT c FROM Course c WHERE c.status = true AND c.courseName LIKE %:searchValue%
+    SELECT c FROM Course c WHERE c.status = :status AND c.courseName LIKE %:searchValue%
 """)
-    List<Course> findByStatusAndCourseName(@Param("searchValue") String searchValue);
+    List<Course> findByStatusAndCourseName(@Param("searchValue") String searchValue, Boolean status);
+
+
 
 }

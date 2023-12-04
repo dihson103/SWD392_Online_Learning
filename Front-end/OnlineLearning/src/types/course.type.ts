@@ -16,3 +16,8 @@ export type CoursesResponse = ApiResponse<Course[]>
 export type CourseResponse = ApiResponse<Course>
 
 export type CourseRequest = Omit<Course, 'id'>
+
+export type SearchCourseParams = {
+  searchValue: string
+  status: 'true' | 'false'
+}

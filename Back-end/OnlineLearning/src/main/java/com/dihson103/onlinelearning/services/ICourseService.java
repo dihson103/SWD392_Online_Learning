@@ -26,4 +26,6 @@ public interface ICourseService {
     List<CourseResponse> findTopNewCourses();
 
     List<CourseResponse> searchCourses(String searchValue);
+
+    List<CourseResponse> searchCourses(String searchValue, Boolean status);
 }

@@ -2,18 +2,42 @@ import { Link } from 'react-router-dom'
 import CourseForm from './CourseForm'
 import { useState } from 'react'
 import ConfirmDelete from './ConfirmDelete'
+import { Course, SearchCourseParams } from 'src/types/course.type'
+import useQueryParams from 'src/hooks/useQueryParams'
+import { useQuery } from '@tanstack/react-query'
+import { searchCoursesAndStatus } from 'src/apis/course.api'
+
+export type QueryConfig = {
+  [key in keyof SearchCourseParams]?: string
+}
 
 export default function CourseManagement() {
   const [display, setDisplay] = useState<boolean>(false)
   const [isDisplayConfirmDelete, setIsDisplayConfirmDelete] = useState<boolean>(false)
+  const [updateCourseId, setUpdateCourseId] = useState<number | null>(null)
 
-  const handleFormDisplay = (status: boolean) => () => {
-    setDisplay(status)
+  const queryConfig: QueryConfig = useQueryParams()
+
+  const queryParams: SearchCourseParams = {
+    searchValue: queryConfig.searchValue ? queryConfig.searchValue : '',
+    status: queryConfig.status == 'false' ? 'false' : 'true'
+  }
+
+  const handleFormDisplay = (isDisplay: boolean, id: number | null) => () => {
+    setUpdateCourseId(id)
+    setDisplay(isDisplay)
   }
 
   const handleConfirmDeleteForm = (status: boolean) => () => {
     setIsDisplayConfirmDelete(status)
   }
+
+  const { data } = useQuery({
+    queryKey: ['admin/courses', queryParams],
+    queryFn: () => searchCoursesAndStatus(queryParams)
+  })
+
+  const courseData: Course[] | undefined = data?.data.data
 
   return (
     <>
@@ -177,7 +201,7 @@ export default function CourseManagement() {
                 data-drawer-show='drawer-create-product-default'
                 aria-controls='drawer-create-product-default'
                 data-drawer-placement='right'
-                onClick={handleFormDisplay(true)}
+                onClick={handleFormDisplay(true, null)}
               >
                 Add new product
               </button>
@@ -209,25 +233,13 @@ export default function CourseManagement() {
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Product Name
+                        Course Name
                       </th>
                       <th
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Technology
-                      </th>
-                      <th
-                        scope='col'
-                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
-                      >
-                        Description
-                      </th>
-                      <th
-                        scope='col'
-                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
-                      >
-                        ID
+                        Title
                       </th>
                       <th
                         scope='col'
@@ -239,7 +251,19 @@ export default function CourseManagement() {
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Discount
+                        Create Date
+                      </th>
+                      <th
+                        scope='col'
+                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
+                      >
+                        Status
+                      </th>
+                      <th
+                        scope='col'
+                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
+                      >
+                        Public Date
                       </th>
                       <th
                         scope='col'
@@ -250,90 +274,95 @@ export default function CourseManagement() {
                     </tr>
                   </thead>
                   <tbody className='bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700'>
-                    <tr className='hover:bg-gray-100 dark:hover:bg-gray-700'>
-                      <td className='w-4 p-4'>
-                        <div className='flex items-center'>
-                          <input
-                            id='checkbox-{{ .id }}'
-                            aria-describedby='checkbox-1'
-                            type='checkbox'
-                            className='w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600'
-                          />
-                          <label htmlFor='checkbox-{{ .id }}' className='sr-only'>
-                            checkbox
-                          </label>
-                        </div>
-                      </td>
-                      <td className='p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400'>
-                        <div className='text-base font-semibold text-gray-900 dark:text-white'>Nguyen dinh son</div>
-                        <div className='text-sm font-normal text-gray-500 dark:text-gray-400'>Nguyen dinh son</div>
-                      </td>
-                      <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                        Nguyen dinh son
-                      </td>
-                      <td className='max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400'>
-                        Nguyen dinh son
-                      </td>
-                      <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                        #Nguyen dinh son
-                      </td>
-                      <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                        Nguyen dinh son
-                      </td>
-                      <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                        Nguyen dinh son
-                      </td>
-                      <td className='p-4 space-x-2 whitespace-nowrap'>
-                        <button
-                          type='button'
-                          id='updateProductButton'
-                          data-drawer-target='drawer-update-product-default'
-                          data-drawer-show='drawer-update-product-default'
-                          aria-controls='drawer-update-product-default'
-                          data-drawer-placement='right'
-                          className='inline-flex items-center text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2'
-                        >
-                          <svg
-                            className='w-4 h-4 mr-2'
-                            fill='currentColor'
-                            viewBox='0 0 20 20'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <path d='M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z' />
-                            <path
-                              fillRule='evenodd'
-                              d='M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z'
-                              clipRule='evenodd'
-                            />
-                          </svg>
-                          Update
-                        </button>
-                        <button
-                          type='button'
-                          id='deleteProductButton'
-                          data-drawer-target='drawer-delete-product-default'
-                          data-drawer-show='drawer-delete-product-default'
-                          aria-controls='drawer-delete-product-default'
-                          data-drawer-placement='right'
-                          onClick={handleConfirmDeleteForm(true)}
-                          className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
-                        >
-                          <svg
-                            className='w-4 h-4 mr-2'
-                            fill='currentColor'
-                            viewBox='0 0 20 20'
-                            xmlns='http://www.w3.org/2000/svg'
-                          >
-                            <path
-                              fillRule='evenodd'
-                              d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                              clipRule='evenodd'
-                            />
-                          </svg>
-                          Delete item
-                        </button>
-                      </td>
-                    </tr>
+                    {courseData &&
+                      courseData.map((course) => (
+                        <tr className='hover:bg-gray-100 dark:hover:bg-gray-700' key={course.id}>
+                          <td className='w-4 p-4'>
+                            <div className='flex items-center'>
+                              <input
+                                id='checkbox-{{ .id }}'
+                                aria-describedby='checkbox-1'
+                                type='checkbox'
+                                className='w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600'
+                              />
+                              <label htmlFor='checkbox-{{ .id }}' className='sr-only'>
+                                checkbox
+                              </label>
+                            </div>
+                          </td>
+                          <td className='p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400'>
+                            <div className='text-base font-semibold text-gray-900 dark:text-white'>
+                              {course.courseName}
+                            </div>
+                          </td>
+                          <td className='max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400'>
+                            {course.title}
+                          </td>
+                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                            {'$ ' + course.price}
+                          </td>
+                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                            {course.createdDate.substring(0, 10)}
+                          </td>
+                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                            {course.status ? 'ACTIVE' : 'INACTIVE'}
+                          </td>
+                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                            {course.publicDate.substring(0, 10)}
+                          </td>
+                          <td className='p-4 space-x-2 whitespace-nowrap'>
+                            <button
+                              type='button'
+                              id='updateProductButton'
+                              data-drawer-target='drawer-update-product-default'
+                              data-drawer-show='drawer-update-product-default'
+                              aria-controls='drawer-update-product-default'
+                              onClick={handleFormDisplay(true, course.id)}
+                              data-drawer-placement='right'
+                              className='inline-flex items-center text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2'
+                            >
+                              <svg
+                                className='w-4 h-4 mr-2'
+                                fill='currentColor'
+                                viewBox='0 0 20 20'
+                                xmlns='http://www.w3.org/2000/svg'
+                              >
+                                <path d='M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z' />
+                                <path
+                                  fillRule='evenodd'
+                                  d='M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z'
+                                  clipRule='evenodd'
+                                />
+                              </svg>
+                              Update
+                            </button>
+                            <button
+                              type='button'
+                              id='deleteProductButton'
+                              data-drawer-target='drawer-delete-product-default'
+                              data-drawer-show='drawer-delete-product-default'
+                              aria-controls='drawer-delete-product-default'
+                              data-drawer-placement='right'
+                              onClick={handleConfirmDeleteForm(true)}
+                              className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
+                            >
+                              <svg
+                                className='w-4 h-4 mr-2'
+                                fill='currentColor'
+                                viewBox='0 0 20 20'
+                                xmlns='http://www.w3.org/2000/svg'
+                              >
+                                <path
+                                  fillRule='evenodd'
+                                  d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
+                                  clipRule='evenodd'
+                                />
+                              </svg>
+                              Delete item
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -413,7 +442,7 @@ export default function CourseManagement() {
         </div>
       </div>
 
-      {display && <CourseForm handleFormDisplay={handleFormDisplay} />}
+      {display && <CourseForm handleFormDisplay={handleFormDisplay} updateCourseId={updateCourseId} />}
 
       {isDisplayConfirmDelete && <ConfirmDelete handleConfirmDeleteForm={handleConfirmDeleteForm} />}
     </>

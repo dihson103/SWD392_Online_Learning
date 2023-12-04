@@ -1,8 +1,10 @@
 interface PropsType {
-  handleFormDisplay: (status: boolean) => () => void
+  handleFormDisplay: (isDisplay: boolean, id: number | null) => () => void
+  updateCourseId: number | null
 }
 
-export default function CourseForm({ handleFormDisplay }: PropsType) {
+export default function CourseForm({ handleFormDisplay, updateCourseId }: PropsType) {
+  console.log('>>> checkID', updateCourseId)
   return (
     <div
       id='drawer-update-product-default'
@@ -29,7 +31,7 @@ export default function CourseForm({ handleFormDisplay }: PropsType) {
           fill='currentColor'
           viewBox='0 0 20 20'
           xmlns='http://www.w3.org/2000/svg'
-          onClick={handleFormDisplay(false)}
+          onClick={handleFormDisplay(false, null)}
         >
           <path
             fillRule='evenodd'

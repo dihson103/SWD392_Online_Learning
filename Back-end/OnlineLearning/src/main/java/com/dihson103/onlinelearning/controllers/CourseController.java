@@ -80,6 +80,18 @@ public class CourseController {
                 .build();
     }
 
+    @GetMapping("/admin/search")
+    @ResponseStatus(OK)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
+    public ApiResponse<List<CourseResponse>> searchCourse(@RequestParam(name = "searchValue") String searchValue,
+                                                          @RequestParam(name = "status") Boolean status){
+        List<CourseResponse> courseResponses = service.searchCourses(searchValue, status);
+        return ApiResponse.<List<CourseResponse>>builder()
+                .message("Search courses success.")
+                .data(courseResponses)
+                .build();
+    }
+
     @PostMapping("filter")
     @ResponseStatus(OK)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
