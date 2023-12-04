@@ -5,6 +5,7 @@ import com.dihson103.onlinelearning.dto.user.ChangePasswordRequest;
 import com.dihson103.onlinelearning.dto.user.UserRequest;
 import com.dihson103.onlinelearning.dto.user.UserResponse;
 import com.dihson103.onlinelearning.dto.user.UserUpdateRequest;
+import com.dihson103.onlinelearning.entities.Role;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ public interface IUserService {
 
     void register(UserRequest userRequest);
 
-    List<UserResponse> getUsers();
+    List<UserResponse> getUsers(String searchValue, Boolean status, Role role);
 
     void createUser(UserRequest userRequest, String role);
 

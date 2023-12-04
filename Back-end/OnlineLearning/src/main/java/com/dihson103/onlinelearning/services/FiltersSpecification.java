@@ -25,17 +25,23 @@ public class FiltersSpecification<T> {
                     case EQUAL -> {
                         predicate = criteriaBuilder.equal(root.get(
                                 searchRequestDto.getColumn()),
+                                searchRequestDto.getValue().toString()
+                        );
+                    }
+                    case EQUAL_BOOLEAN -> {
+                        predicate = criteriaBuilder.equal(root.get(
+                                        searchRequestDto.getColumn()),
                                 searchRequestDto.getValue()
                         );
                     }
                     case LIKE -> {
                         predicate = criteriaBuilder.like(root.get(
                                 searchRequestDto.getColumn()),
-                                "%" + searchRequestDto.getValue() + "%"
+                                "%" + searchRequestDto.getValue().toString() + "%"
                         );
                     }
                     case IN -> {
-                        String[] values = searchRequestDto.getValue().split("\\|");
+                        String[] values = searchRequestDto.getValue().toString().split("\\|");
                         values = Arrays.stream(values)
                                 .map(String::trim)
                                 .toArray(String[]::new);
@@ -44,17 +50,17 @@ public class FiltersSpecification<T> {
                     case GREATER_THAN -> {
                         predicate = criteriaBuilder.greaterThan(root.get(
                                 searchRequestDto.getColumn()),
-                                searchRequestDto.getValue()
+                                searchRequestDto.getValue().toString()
                         );
                     }
                     case LESS_THAN -> {
                         predicate = criteriaBuilder.lessThan(root.get(
                                 searchRequestDto.getColumn()),
-                                searchRequestDto.getValue()
+                                searchRequestDto.getValue().toString()
                         );
                     }
                     case BETWEEN -> {
-                        String[] values = searchRequestDto.getValue().split("\\|");
+                        String[] values = searchRequestDto.getValue().toString().split("\\|");
                         Integer[] list = Arrays.stream(values)
                                 .map(value -> Integer.parseInt(value.trim()))
                                 .toArray(Integer[]::new);
@@ -67,7 +73,7 @@ public class FiltersSpecification<T> {
                     case JOIN -> {
                         predicate = criteriaBuilder.equal(root.join(
                                 searchRequestDto.getJoinTable()).get(searchRequestDto.getColumn()),
-                                searchRequestDto.getValue()
+                                searchRequestDto.getValue().toString()
                         );
                     }
                     default -> throw new IllegalArgumentException("");

@@ -1,14 +1,16 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { deleteUser, getAllUsers } from 'src/apis/user.api'
+
+import { deleteUser, getUsers } from 'src/apis/user.api'
 import UserRow from './UserRow'
-import { User } from 'src/types/user.type'
+import { User, UserListConfig } from 'src/types/user.type'
 import UserForm from './UserForm'
 import { toast } from 'react-toastify'
-import UserFormStatus from 'src/constants/userFormStatus'
+import FormStatus from 'src/constants/formStatus'
 import { UserSchema } from 'src/utils/rules'
+import useQueryParams from 'src/hooks/useQueryParams'
 
 const initialFormData: UserSchema = {
   email: '',
@@ -19,17 +21,34 @@ const initialFormData: UserSchema = {
   role: 'USER'
 }
 
+type QueryConfig = {
+  [key in keyof UserListConfig]: string
+}
+
 export default function UserManagement() {
   const [isEdit, setIsEdit] = useState<boolean>(false)
   const [isDelete, setIsDelete] = useState<boolean>(false)
   const [formDatatState, setFormDatatState] = useState<User | UserSchema>(initialFormData)
   const [idDelete, setIdDelete] = useState<number>(0)
+  const queryParams: QueryConfig = useQueryParams()
+  const navigate = useNavigate()
 
-  const handleDisplayForm = (status: UserFormStatus, userData: User | UserSchema) => () => {
+  const getRoleFromParam = (role: string) => {
+    if (role.toUpperCase() === 'ADMIN') return 'ADMIN'
+    return 'USER'
+  }
+
+  const queryConfig: QueryConfig = {
+    searchValue: queryParams.searchValue || '',
+    role: queryParams.role ? getRoleFromParam(queryParams.role) : 'USER',
+    status: queryParams.status === 'false' ? 'false' : 'true'
+  }
+
+  const handleDisplayForm = (status: FormStatus, userData: User | UserSchema) => () => {
     setFormDatatState(() => userData)
-    if (status === UserFormStatus.Display) {
+    if (status === FormStatus.Display) {
       setIsEdit(true)
-    } else if (status === UserFormStatus.Hidden) {
+    } else if (status === FormStatus.Hidden) {
       setIsEdit(false)
     } else {
       setIsEdit(false)
@@ -44,8 +63,8 @@ export default function UserManagement() {
   }
 
   const { data, refetch } = useQuery({
-    queryKey: ['users'],
-    queryFn: getAllUsers
+    queryKey: ['users', queryConfig],
+    queryFn: () => getUsers(queryConfig)
   })
 
   const deleteUserMutation = useMutation({
@@ -60,6 +79,25 @@ export default function UserManagement() {
         toast.success(data.data.message)
       }
     })
+  }
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const queryParam = { ...queryConfig, searchValue: event.target.value }
+    handleSearchChange(queryParam)
+  }
+
+  const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const queryParam = { ...queryConfig, role: event.target.value }
+    handleSearchChange(queryParam)
+  }
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const queryParam = { ...queryConfig, status: event.target.value == 'ACTIVE' ? 'true' : 'false' }
+    handleSearchChange(queryParam)
+  }
+
+  const handleSearchChange = (params: QueryConfig) => {
+    navigate(`/admin/users?searchValue=${params.searchValue}&status=${params.status}&role=${params.role}`)
   }
 
   return (
@@ -80,13 +118,17 @@ export default function UserManagement() {
                     type='text'
                     name='email'
                     id='users-search'
+                    onChange={handleInputChange}
                     className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
                     placeholder='Search for users'
                   />
                 </div>
               </div>
               <div className='flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0'>
-                <select className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'>
+                <select
+                  className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  onChange={handleStatusChange}
+                >
                   <option selected value='ACTIVE'>
                     ACTIVE
                   </option>
@@ -94,7 +136,10 @@ export default function UserManagement() {
                 </select>
               </div>
               <div className='flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0 ml-3'>
-                <select className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'>
+                <select
+                  className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  onChange={handleRoleChange}
+                >
                   <option selected value='USER'>
                     USER
                   </option>
@@ -106,7 +151,7 @@ export default function UserManagement() {
               <button
                 type='button'
                 data-modal-toggle='add-user-modal'
-                onClick={handleDisplayForm(UserFormStatus.Display, initialFormData)}
+                onClick={handleDisplayForm(FormStatus.Display, initialFormData)}
                 className='inline-flex items-center text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
               >
                 <svg
@@ -211,6 +256,7 @@ export default function UserManagement() {
                       profile={user}
                       handleDisplayForm={handleDisplayForm}
                       handleDisplayConfirmDelete={handleDisplayConfirmDelete}
+                      status={queryConfig.status == 'true'}
                     />
                   ))}
                 </tbody>

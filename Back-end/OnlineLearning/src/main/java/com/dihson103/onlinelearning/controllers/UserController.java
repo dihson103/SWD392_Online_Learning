@@ -45,8 +45,10 @@ public class UserController {
     @GetMapping
     @ResponseStatus(OK)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_USER')")
-    public ApiResponse<List<UserResponse>> getAllUsers(){
-        List<UserResponse> users = service.getUsers();
+    public ApiResponse<List<UserResponse>> getAllUsers(@RequestParam(name = "status", defaultValue = "true") Boolean status,
+                                                       @RequestParam(name = "role", defaultValue = "USER") Role role,
+                                                       @RequestParam(name = "searchValue", defaultValue = "") String searchValue){
+        List<UserResponse> users = service.getUsers(searchValue, status, role);
         return ApiResponse.<List<UserResponse>>builder()
                 .message("Get data success.")
                 .data(users)

@@ -9,10 +9,10 @@ import { User } from 'src/types/user.type'
 import { UserSchema, userSchema } from 'src/utils/rules'
 import Input from 'src/components/Input'
 import { addUser, updateUser } from 'src/apis/user.api'
-import UserFormStatus from 'src/constants/userFormStatus'
+import FormStatus from 'src/constants/formStatus'
 
 type Props = {
-  handleDisplayForm: (status: UserFormStatus, userData: User | UserSchema) => () => void
+  handleDisplayForm: (status: FormStatus, userData: User | UserSchema) => () => void
   initialFormData: UserSchema
   formDatatState: User | UserSchema
 }
@@ -50,7 +50,7 @@ export default function UserForm({ handleDisplayForm, initialFormData, formDatat
       const newData = { ...data, role: userRole, id: checkFormDataState.id }
       updateUserMutation.mutate(newData, {
         onSuccess(data) {
-          handleDisplayForm(UserFormStatus.Refetch, initialFormData)()
+          handleDisplayForm(FormStatus.Refetch, initialFormData)()
           toast.success(data.data.message)
         },
         onError(error) {
@@ -60,7 +60,7 @@ export default function UserForm({ handleDisplayForm, initialFormData, formDatat
     } else {
       addUserMutation.mutate(data, {
         onSuccess(data) {
-          handleDisplayForm(UserFormStatus.Refetch, initialFormData)()
+          handleDisplayForm(FormStatus.Refetch, initialFormData)()
           toast.success(data.data.message)
         },
         onError(error) {
@@ -90,7 +90,7 @@ export default function UserForm({ handleDisplayForm, initialFormData, formDatat
           <h3 className='text-xl font-semibold dark:text-white'>Edit user</h3>
           <button
             type='button'
-            onClick={handleDisplayForm(UserFormStatus.Hidden, initialFormData)}
+            onClick={handleDisplayForm(FormStatus.Hidden, initialFormData)}
             className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white'
             data-modal-toggle='edit-user-modal'
           >

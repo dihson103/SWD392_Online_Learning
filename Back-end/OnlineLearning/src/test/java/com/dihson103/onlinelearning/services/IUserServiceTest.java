@@ -122,7 +122,7 @@ class IUserServiceTest {
         when(userRepository.findAllByStatusIsTrue()).thenReturn(list);
 
         //when
-        List<UserResponse> users =  underTest.getUsers();
+        List<UserResponse> users =  underTest.getUsers("", true, USER);
 
         //then
         assertFalse(users.isEmpty());
@@ -138,7 +138,7 @@ class IUserServiceTest {
 
         //when
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            underTest.getUsers();
+            underTest.getUsers("", true, USER));
         });
 
         //then

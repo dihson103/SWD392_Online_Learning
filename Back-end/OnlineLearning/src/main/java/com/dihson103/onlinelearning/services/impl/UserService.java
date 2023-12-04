@@ -66,8 +66,10 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserResponse> getUsers() {
-        List<UserEntity> users = userRepository.findAllByStatusIsTrue();
+    public List<UserResponse> getUsers(String searchValue, Boolean status, Role role) {
+        List<UserEntity> users = userRepository.filterUserByStatusRoleSearchValue(
+                searchValue, status, role
+        );
         if(users.isEmpty()) throw new IllegalArgumentException("Can not find any users.");
         return users.stream()
                 .map(user -> modelMapper.map(user, UserResponse.class))

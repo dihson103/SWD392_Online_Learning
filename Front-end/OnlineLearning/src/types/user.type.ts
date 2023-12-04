@@ -25,3 +25,9 @@ export interface ChangePasswordRequest {
   oldPassword: string
   newPassword: string
 }
+
+export interface UserListConfig {
+  searchValue?: string
+  role?: string
+  status?: string
+}
