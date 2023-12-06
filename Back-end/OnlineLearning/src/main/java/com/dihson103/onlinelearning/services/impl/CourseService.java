@@ -14,6 +14,7 @@ import com.dihson103.onlinelearning.repositories.LessonRepository;
 import com.dihson103.onlinelearning.repositories.SessionRepository;
 import com.dihson103.onlinelearning.services.FiltersSpecification;
 import com.dihson103.onlinelearning.services.ICourseService;
+import com.dihson103.onlinelearning.utils.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;

@@ -94,3 +94,22 @@ export const changePasswordSchema = yup.object({
 })
 
 export type ChangePasswordSchema = yup.InferType<typeof changePasswordSchema>
+
+export const courseSchema = yup.object({
+  courseName: yup.string().required('Course name is required'),
+  price: yup.number().required('Course price is required'),
+  title: yup.string().required('Course title is required'),
+  status: yup.boolean().default(false),
+  image: yup.string().required('Course image is required')
+})
+
+export type CourseUpdateSchema = yup.InferType<typeof courseSchema>
+
+export const createCourseSchema = yup.object({
+  courseName: courseSchema.fields.courseName as yup.StringSchema<string>,
+  price: courseSchema.fields.price as yup.NumberSchema<number>,
+  title: courseSchema.fields.title as yup.StringSchema<string>,
+  image: courseSchema.fields.image as yup.StringSchema<string>
+})
+
+export type CreateCourseSchema = yup.InferType<typeof createCourseSchema>

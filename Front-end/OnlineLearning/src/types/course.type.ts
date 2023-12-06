@@ -7,7 +7,7 @@ export interface Course {
   title: string
   status: boolean
   createdDate: string
-  publicDate: string
+  publicDate?: string
   image: string
 }
 
@@ -20,4 +20,11 @@ export type CourseRequest = Omit<Course, 'id'>
 export type SearchCourseParams = {
   searchValue: string
   status: 'true' | 'false'
+}
+
+export type CreateCourseType = {
+  courseName: string
+  price: number
+  title: string
+  image: File
 }

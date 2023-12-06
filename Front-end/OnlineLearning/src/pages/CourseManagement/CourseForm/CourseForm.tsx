@@ -1,150 +1,185 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { addNewCourse } from 'src/apis/course.api'
+import Input from 'src/components/Input'
+
+import { Course, CreateCourseType } from 'src/types/course.type'
+import { CourseUpdateSchema, CreateCourseSchema, createCourseSchema } from 'src/utils/rules'
+
 interface PropsType {
-  handleFormDisplay: (isDisplay: boolean, id: number | null) => () => void
-  updateCourseId: number | null
+  handleFormDisplay: (isDisplay: boolean, course: Course | null) => () => void
+  updateCourse: Course | null
 }
 
-export default function CourseForm({ handleFormDisplay, updateCourseId }: PropsType) {
-  console.log('>>> checkID', updateCourseId)
+export default function CourseForm({ handleFormDisplay, updateCourse }: PropsType) {
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors }
+  } = useForm<CourseUpdateSchema | CreateCourseSchema>({
+    resolver: yupResolver(createCourseSchema)
+  })
+
+  useEffect(() => {
+    if (updateCourse) {
+      setValue('courseName', updateCourse.courseName)
+      setValue('title', updateCourse.title)
+      setValue('image', updateCourse.image)
+      setValue('status', updateCourse.status)
+      setValue('price', updateCourse.price)
+    }
+  }, [updateCourse, setValue])
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const image = event.target.files ? event.target.files[0] : null
+    setImageFile(image)
+  }
+
+  const addCourseMutation = useMutation({
+    mutationFn: (body: CreateCourseType) => addNewCourse(body)
+  })
+
+  const handleSubmitForm = handleSubmit((data) => {
+    if (updateCourse) {
+    } else {
+      if (imageFile == null) {
+        console.log('>>> check image')
+        return
+      }
+      // const formdata = new FormData()
+      // formdata.append('courseName', data.courseName)
+      // formdata.append('price', data.price.toString())
+      // formdata.append('title', data.title)
+      // formdata.append('image', imageFile)
+
+      const formdata = { ...data, image: imageFile }
+
+      addCourseMutation.mutate(formdata, {
+        onSuccess(data) {
+          console.log('data', data)
+        },
+        onError(error) {
+          console.log('>>> add new course error', error)
+        }
+      })
+    }
+  })
+
   return (
     <div
-      id='drawer-update-product-default'
-      className='fixed top-20 right-0 z-40 w-full h-screen max-w-xs p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 transform-none'
-      tabIndex={-1}
-      aria-labelledby='drawer-label'
-      aria-hidden='true'
+      aria-hidden={true}
+      id='edit-user-modal'
+      className='fixed top-0 left-0 right-0 z-50 items-center justify-center flex overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full'
     >
-      <h5
-        id='drawer-label'
-        className='inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400'
-      >
-        Update Product
-      </h5>
-      <button
-        type='button'
-        data-drawer-dismiss='drawer-update-product-default'
-        aria-controls='drawer-update-product-default'
-        className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white'
-      >
-        <svg
-          aria-hidden='true'
-          className='w-5 h-5'
-          fill='currentColor'
-          viewBox='0 0 20 20'
-          xmlns='http://www.w3.org/2000/svg'
-          onClick={handleFormDisplay(false, null)}
-        >
-          <path
-            fillRule='evenodd'
-            d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
-            clipRule='evenodd'
-          />
-        </svg>
-        <span className='sr-only'>Close menu</span>
-      </button>
-      <form action='#'>
-        <div className='space-y-4'>
-          <div>
-            <label htmlFor='name' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-              Name
-            </label>
-            <input
-              type='text'
-              name='title'
-              id='name'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-              defaultValue='Education Dashboard'
-              placeholder='Type product name'
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor='category' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-              Technology
-            </label>
-            <select
-              id='category'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+      <div className='relative w-full h-full max-w-2xl px-4 md:h-auto'>
+        <div className='relative bg-white rounded-lg shadow dark:bg-gray-800'>
+          <div className='flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700'>
+            <h3 className='text-xl font-semibold dark:text-white'>{updateCourse ? 'Update' : 'Create'} course</h3>
+            <button
+              type='button'
+              onClick={handleFormDisplay(false, null)}
+              className='text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white'
+              data-modal-toggle='edit-user-modal'
             >
-              <option selected>Flowbite</option>
-              <option value='RE'>React</option>
-              <option value='AN'>Angular</option>
-              <option value='VU'>Vue JS</option>
-            </select>
+              <svg className='w-5 h-5' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
+                <path
+                  fillRule='evenodd'
+                  d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                  clipRule='evenodd'
+                />
+              </svg>
+            </button>
           </div>
-          <div>
-            <label htmlFor='price' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-              Price
-            </label>
-            <input
-              type='number'
-              name='price'
-              id='price'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-              defaultValue={2999}
-              placeholder='$149'
-              required
-            />
+          <div className='p-6 space-y-6'>
+            <form onSubmit={handleSubmitForm}>
+              <div className='grid grid-cols-6 gap-6'>
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Course Name'
+                  name='courseName'
+                  type='text'
+                  errorMessage={errors.courseName?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Course name'
+                />
+                <Input
+                  className='col-span-6 sm:col-span-3'
+                  label='Price'
+                  name='price'
+                  type='number'
+                  errorMessage={errors.price?.message}
+                  register={register}
+                  labelClass='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+                  inputClass='shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+                  placeholder='Course price'
+                />
+
+                <div className='col-span-6 sm:col-span-3'>
+                  <label className='block mb-2 text-sm font-medium text-gray-900 dark:text-white' htmlFor='file_input'>
+                    Upload file
+                  </label>
+                  <input
+                    className='block w-full text-sm text-gray-900 cursor-pointer mt-4'
+                    id='file_input'
+                    type='file'
+                  />
+                </div>
+
+                <div className='col-span-6 sm:col-span-3'>
+                  <label className='block mb-2 text-sm font-medium text-gray-900 dark:text-white' htmlFor='file_input'>
+                    Not Upload
+                  </label>
+                  <button
+                    type='button'
+                    className='inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2 text-center'
+                  >
+                    <svg
+                      className='w-4 h-4 mr-2 -ml-1'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      xmlns='http://www.w3.org/2000/svg'
+                    >
+                      <path d='M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13H5.5z' />
+                      <path d='M9 13h2v5a1 1 0 11-2 0v-5z' />
+                    </svg>
+                    Upload picture
+                  </button>
+                </div>
+
+                <div className='col-span-12 sm:col-span-6'>
+                  <label htmlFor='message' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
+                    Title
+                  </label>
+                  <textarea
+                    id='message'
+                    rows={4}
+                    {...register('title')}
+                    className='block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                    placeholder='Write your thoughts here...'
+                    defaultValue={''}
+                  />
+                  <div className='mt-1 text-red-600 min-h-[1.25rem] text-sm'>{errors.title?.message}</div>
+                </div>
+              </div>
+            </form>
           </div>
-          <div>
-            <label htmlFor='description' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-              Description
-            </label>
-            <textarea
-              id='description'
-              rows={4}
-              className='block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-              placeholder='Enter event description here'
-              defaultValue={
-                'Start developing with an open-source library of over 450+ UI components, sections, and pages built with the utility classes from Tailwind CSS and designed in Figma.'
-              }
-            />
-          </div>
-          <div>
-            <label htmlFor='discount' className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'>
-              Discount
-            </label>
-            <select
-              id='discount'
-              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
+          {/* Modal footer */}
+          <div className='items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700'>
+            <button
+              className='text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
+              type='button'
             >
-              <option selected>No</option>
-              <option value={5}>5%</option>
-              <option value={10}>10%</option>
-              <option value={20}>20%</option>
-              <option value={30}>30%</option>
-              <option value={40}>40%</option>
-              <option value={50}>50%</option>
-            </select>
+              Save all
+            </button>
           </div>
         </div>
-        <div className='bottom-0 left-0 flex justify-center w-full pb-4 mt-4 space-x-4 sm:absolute sm:px-4 sm:mt-0'>
-          <button
-            type='submit'
-            className='w-full justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'
-          >
-            Update
-          </button>
-          <button
-            type='button'
-            className='w-full justify-center text-red-600 inline-flex items-center hover:text-white border border-red-600 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900'
-          >
-            <svg
-              aria-hidden='true'
-              className='w-5 h-5 mr-1 -ml-1'
-              fill='currentColor'
-              viewBox='0 0 20 20'
-              xmlns='http://www.w3.org/2000/svg'
-            >
-              <path
-                fillRule='evenodd'
-                d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                clipRule='evenodd'
-              />
-            </svg>
-            Delete
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   )
 }

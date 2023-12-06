@@ -10,10 +10,14 @@ import com.dihson103.onlinelearning.services.ICourseService;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,7 +34,7 @@ public class CourseController {
     @PostMapping
     @ResponseStatus(CREATED)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
-    public ApiResponse createCourse(@RequestBody @Valid CreateCourseRequest courseRequest){
+    public ApiResponse createCourse(@RequestBody @Valid CreateCourseRequest courseRequest) {
         service.createCourse(courseRequest);
         return ApiResponse.builder()
                 .message("Course " + courseRequest.getCourseName() + " was created successfully.")

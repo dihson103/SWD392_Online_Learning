@@ -14,7 +14,7 @@ export type QueryConfig = {
 export default function CourseManagement() {
   const [display, setDisplay] = useState<boolean>(false)
   const [isDisplayConfirmDelete, setIsDisplayConfirmDelete] = useState<boolean>(false)
-  const [updateCourseId, setUpdateCourseId] = useState<number | null>(null)
+  const [updateCourse, setUpdateCourse] = useState<Course | null>(null)
 
   const queryConfig: QueryConfig = useQueryParams()
 
@@ -23,8 +23,8 @@ export default function CourseManagement() {
     status: queryConfig.status == 'false' ? 'false' : 'true'
   }
 
-  const handleFormDisplay = (isDisplay: boolean, id: number | null) => () => {
-    setUpdateCourseId(id)
+  const handleFormDisplay = (isDisplay: boolean, course: Course | null) => () => {
+    setUpdateCourse(course)
     setDisplay(isDisplay)
   }
 
@@ -203,7 +203,7 @@ export default function CourseManagement() {
                 data-drawer-placement='right'
                 onClick={handleFormDisplay(true, null)}
               >
-                Add new product
+                Add new course
               </button>
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function CourseManagement() {
                             {course.status ? 'ACTIVE' : 'INACTIVE'}
                           </td>
                           <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {course.publicDate.substring(0, 10)}
+                            {course.publicDate ? course.publicDate.substring(0, 10) : ''}
                           </td>
                           <td className='p-4 space-x-2 whitespace-nowrap'>
                             <button
@@ -317,7 +317,7 @@ export default function CourseManagement() {
                               data-drawer-target='drawer-update-product-default'
                               data-drawer-show='drawer-update-product-default'
                               aria-controls='drawer-update-product-default'
-                              onClick={handleFormDisplay(true, course.id)}
+                              onClick={handleFormDisplay(true, course)}
                               data-drawer-placement='right'
                               className='inline-flex items-center text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2'
                             >
@@ -442,7 +442,7 @@ export default function CourseManagement() {
         </div>
       </div>
 
-      {display && <CourseForm handleFormDisplay={handleFormDisplay} updateCourseId={updateCourseId} />}
+      {display && <CourseForm handleFormDisplay={handleFormDisplay} updateCourse={updateCourse} />}
 
       {isDisplayConfirmDelete && <ConfirmDelete handleConfirmDeleteForm={handleConfirmDeleteForm} />}
     </>
