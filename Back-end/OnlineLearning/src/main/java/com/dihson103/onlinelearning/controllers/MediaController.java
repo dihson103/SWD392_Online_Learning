@@ -3,8 +3,11 @@ package com.dihson103.onlinelearning.controllers;
 import com.dihson103.onlinelearning.dto.common.ApiResponse;
 import com.dihson103.onlinelearning.dto.file.FileResponse;
 import com.dihson103.onlinelearning.utils.FileUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +20,10 @@ import java.nio.file.Files;
 
 @RestController
 @RequestMapping("api/media")
+@RequiredArgsConstructor
 public class MediaController {
+
+    private final ResourceLoader resourceLoader;
 
     @PostMapping("images")
     public ApiResponse<FileResponse> uploadImage(@RequestParam("file") MultipartFile multipartFile) throws Exception {
@@ -43,24 +49,18 @@ public class MediaController {
                 .build();
     }
 
-    @GetMapping(value = "videos/{videoName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<StreamingResponseBody> getVideo(@PathVariable String videoName) throws IOException {
-        Resource resource = new ClassPathResource("static/videos/" + videoName);
+    @GetMapping(value = "/videos/{videoName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @ResponseBody
+    public ResponseEntity<Resource> getVideo(@PathVariable String videoName) throws IOException {
+        Resource resource = resourceLoader.getResource("classpath:static/videos/" + videoName);
 
-        InputStream videoStream = resource.getInputStream();
-
-        StreamingResponseBody responseBody = outputStream -> {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = videoStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            videoStream.close();
-        };
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + videoName);
 
         return ResponseEntity.ok()
-                .header("Content-Disposition", "inline;filename=" + videoName)
+                .headers(headers)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(responseBody);
+                .body(resource);
     }
+
 }
