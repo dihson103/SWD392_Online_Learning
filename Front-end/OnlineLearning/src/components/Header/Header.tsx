@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
+import { Popover } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+
+import { clearTokenAndProfile } from 'src/utils/auth'
+import { signOut } from 'src/apis/auth.api'
 import path from 'src/constants/path'
 import { AppContext } from 'src/contexts/app.context'
-import { Popover } from '@mui/material'
-import { signOut } from 'src/apis/auth.api'
-import { useQuery } from '@tanstack/react-query'
-import { clearTokenAndProfile } from 'src/utils/auth'
 
 export default function Header() {
   const [isHiddenMegaMenu, setHiddenMegaMenu] = useState<boolean>(true)
@@ -42,6 +43,10 @@ export default function Header() {
     refetch()
     navigate('/')
   }
+
+  useEffect(() => {
+    console.log('render header')
+  })
 
   return (
     <nav className='bg-gray-100 border-gray-200 dark:bg-gray-900 fixed top-0 left-0 right-0 z-50'>

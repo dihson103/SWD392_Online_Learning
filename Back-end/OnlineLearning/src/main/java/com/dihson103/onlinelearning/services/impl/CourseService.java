@@ -1,10 +1,9 @@
 package com.dihson103.onlinelearning.services.impl;
 
-import com.dihson103.onlinelearning.dto.course.CourseResponse;
-import com.dihson103.onlinelearning.dto.course.CourseStatusRequest;
-import com.dihson103.onlinelearning.dto.course.CreateCourseRequest;
-import com.dihson103.onlinelearning.dto.course.UpdateCourseRequest;
+import com.dihson103.onlinelearning.dto.course.*;
 import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
+import com.dihson103.onlinelearning.dto.lesson.LessonInfoResponse;
+import com.dihson103.onlinelearning.dto.session.SessionInfoResponse;
 import com.dihson103.onlinelearning.entities.Course;
 import com.dihson103.onlinelearning.entities.Lesson;
 import com.dihson103.onlinelearning.entities.Session;
@@ -131,6 +130,39 @@ public class CourseService implements ICourseService {
                 .stream()
                 .map(course -> modelMapper.map(course, CourseResponse.class))
                 .toList();
+    }
+
+    @Override
+    public CourseInfoResponse getCourseStatusInfo(Integer courseId) {
+        Course course = courseRepository.getReferenceById(courseId);
+        List<Lesson> lessons = course.getLessons();
+        List<LessonInfoResponse> lessonInfoResponses = lessons
+                .stream()
+                .map((lesson -> {
+                    List<Session> sessions = lesson.getSessions();
+                    List<SessionInfoResponse> sessionInfoResponses = sessions
+                            .stream()
+                            .map(session -> {
+                        return SessionInfoResponse.builder()
+                                .id(session.getId())
+                                .status(session.getStatus())
+                                .name(session.getSessionName())
+                                .build();
+                    }).toList();
+                    return LessonInfoResponse.builder()
+                            .id(lesson.getId())
+                            .status(lesson.getStatus())
+                            .name(lesson.getTitle())
+                            .sessions(sessionInfoResponses)
+                            .build();
+                }))
+                .toList();
+        return CourseInfoResponse.builder()
+                .id(course.getId())
+                .status(course.getStatus())
+                .name(course.getCourseName())
+                .lessons(lessonInfoResponses)
+                .build();
     }
 
     private void updateAllRequestToTrue(CourseStatusRequest courseStatusRequest, Course course ) {

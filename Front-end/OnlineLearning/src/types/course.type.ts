@@ -1,3 +1,4 @@
+import { LessonInfoResponse } from './lesson.type'
 import { ApiResponse } from './utils.type'
 
 export interface Course {
@@ -27,4 +28,11 @@ export type CreateCourseType = {
   price: number
   title: string
   image: string
+}
+
+export type CourseInfoResponse = {
+  id: number
+  name: string
+  status: boolean
+  lessons: LessonInfoResponse[]
 }

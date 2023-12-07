@@ -1,9 +1,6 @@
 package com.dihson103.onlinelearning.services;
 
-import com.dihson103.onlinelearning.dto.course.CourseResponse;
-import com.dihson103.onlinelearning.dto.course.CourseStatusRequest;
-import com.dihson103.onlinelearning.dto.course.CreateCourseRequest;
-import com.dihson103.onlinelearning.dto.course.UpdateCourseRequest;
+import com.dihson103.onlinelearning.dto.course.*;
 import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
 
 import java.util.List;
@@ -28,4 +25,6 @@ public interface ICourseService {
     List<CourseResponse> searchCourses(String searchValue);
 
     List<CourseResponse> searchCourses(String searchValue, Boolean status);
+
+    CourseInfoResponse getCourseStatusInfo(Integer courseId);
 }

@@ -1,10 +1,7 @@
 package com.dihson103.onlinelearning.controllers;
 
 import com.dihson103.onlinelearning.dto.common.ApiResponse;
-import com.dihson103.onlinelearning.dto.course.CourseResponse;
-import com.dihson103.onlinelearning.dto.course.CourseStatusRequest;
-import com.dihson103.onlinelearning.dto.course.CreateCourseRequest;
-import com.dihson103.onlinelearning.dto.course.UpdateCourseRequest;
+import com.dihson103.onlinelearning.dto.course.*;
 import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
 import com.dihson103.onlinelearning.services.ICourseService;
 import jakarta.annotation.security.PermitAll;
@@ -137,6 +134,17 @@ public class CourseController {
         return ApiResponse.<List<CourseResponse>>builder()
                 .message("Get top 5 newest courses success.")
                 .data(courseResponses)
+                .build();
+    }
+
+    @GetMapping("get-status-info/{course-id}")
+    @ResponseStatus(OK)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
+    public ApiResponse<CourseInfoResponse> getCourseInfo(@PathVariable("course-id") Integer courseId){
+        CourseInfoResponse courseInfoResponse = service.getCourseStatusInfo(courseId);
+        return ApiResponse.<CourseInfoResponse>builder()
+                .message("Get course status information successfully")
+                .data(courseInfoResponse)
                 .build();
     }
 

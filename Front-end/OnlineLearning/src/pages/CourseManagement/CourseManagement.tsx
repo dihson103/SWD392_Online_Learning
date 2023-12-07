@@ -1,11 +1,12 @@
-import { Link } from 'react-router-dom'
-import CourseForm from './CourseForm'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import ConfirmDelete from './ConfirmDelete'
+import { useQuery } from '@tanstack/react-query'
+
+import { searchCoursesAndStatus } from 'src/apis/course.api'
+import ChangeCourseStatus from './ChangeCourseStaus'
+import CourseForm from './CourseForm'
 import { Course, SearchCourseParams } from 'src/types/course.type'
 import useQueryParams from 'src/hooks/useQueryParams'
-import { useQuery } from '@tanstack/react-query'
-import { searchCoursesAndStatus } from 'src/apis/course.api'
 
 export type QueryConfig = {
   [key in keyof SearchCourseParams]?: string
@@ -13,8 +14,9 @@ export type QueryConfig = {
 
 export default function CourseManagement() {
   const [display, setDisplay] = useState<boolean>(false)
-  const [isDisplayConfirmDelete, setIsDisplayConfirmDelete] = useState<boolean>(false)
   const [updateCourse, setUpdateCourse] = useState<Course | null>(null)
+  const [idCourseChangeStatus, setIdCourseChangeStatus] = useState<number | null>(null)
+  const navigate = useNavigate()
 
   const queryConfig: QueryConfig = useQueryParams()
 
@@ -28,8 +30,8 @@ export default function CourseManagement() {
     setDisplay(isDisplay)
   }
 
-  const handleConfirmDeleteForm = (status: boolean) => () => {
-    setIsDisplayConfirmDelete(status)
+  const handleChangeCourseStatusDisplay = (courseId: number | null) => () => {
+    setIdCourseChangeStatus(courseId)
   }
 
   const { data } = useQuery({
@@ -39,12 +41,20 @@ export default function CourseManagement() {
 
   const handleSearchValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     queryParams.searchValue = event.target.value
-    console.log('>>> check event', queryParams)
+    handleSearchCourse()
   }
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     queryParams.status = event.target.value === 'ACTIVE' ? 'true' : 'false'
-    console.log('>>> check event', queryParams)
+    handleSearchCourse()
+  }
+
+  const handleSearchCourse = () => {
+    if (queryParams.searchValue) {
+      navigate(`/admin/courses?status=${queryParams.status}&searchValue=${queryParams.searchValue}`)
+    } else {
+      navigate(`/admin/courses?status=${queryParams.status}`)
+    }
   }
 
   const courseData: Course[] | undefined = data?.data.data
@@ -296,7 +306,7 @@ export default function CourseManagement() {
                               data-drawer-show='drawer-delete-product-default'
                               aria-controls='drawer-delete-product-default'
                               data-drawer-placement='right'
-                              onClick={handleConfirmDeleteForm(true)}
+                              onClick={handleChangeCourseStatusDisplay(course.id)}
                               className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
                             >
                               <svg
@@ -397,7 +407,12 @@ export default function CourseManagement() {
 
       {display && <CourseForm handleFormDisplay={handleFormDisplay} updateCourse={updateCourse} />}
 
-      {isDisplayConfirmDelete && <ConfirmDelete handleConfirmDeleteForm={handleConfirmDeleteForm} />}
+      {idCourseChangeStatus && (
+        <ChangeCourseStatus
+          handleChangeCourseStatusDisplay={handleChangeCourseStatusDisplay}
+          courseId={idCourseChangeStatus}
+        />
+      )}
     </>
   )
 }

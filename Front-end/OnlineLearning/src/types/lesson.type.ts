@@ -1,3 +1,4 @@
+import { SessionInfoResponse } from './session.type'
 import { ApiResponse } from './utils.type'
 
 export interface Lesson {
@@ -8,3 +9,10 @@ export interface Lesson {
 }
 
 export type LessonsResponse = ApiResponse<Lesson[]>
+
+export type LessonInfoResponse = {
+  id: number
+  name: string
+  status: boolean
+  sessions: SessionInfoResponse[]
+}
