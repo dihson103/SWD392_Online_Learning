@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 
-import { addNewCourse } from 'src/apis/course.api'
+import { addNewCourse, updateCourseFunction } from 'src/apis/course.api'
 import { uploadImage } from 'src/apis/file.api'
 import Input from 'src/components/Input'
 import { Course, CreateCourseType } from 'src/types/course.type'
@@ -17,6 +17,7 @@ interface PropsType {
 
 export default function CourseForm({ handleFormDisplay, updateCourse }: PropsType) {
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isUploadImage, setIsUploadImage] = useState<boolean>(false)
   const {
     register,
     handleSubmit,
@@ -28,10 +29,11 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
 
   useEffect(() => {
     if (updateCourse) {
+      setIsUploadImage(true)
       setValue('courseName', updateCourse.courseName)
       setValue('title', updateCourse.title)
       setValue('image', updateCourse.image)
-      setValue('status', updateCourse.status)
+      setValue('id', updateCourse.id)
       setValue('price', updateCourse.price)
     } else {
       setValue('image', 'initial image')
@@ -51,12 +53,17 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
     mutationFn: (body: FormData) => uploadImage(body)
   })
 
+  const updateCourseMutation = useMutation({
+    mutationFn: (body: CourseUpdateSchema) => updateCourseFunction(body)
+  })
+
   const handleUploadImage = () => {
     if (imageFile) {
       const formData = new FormData()
       formData.append('file', imageFile)
       uploadImageMutation.mutate(formData, {
         onSuccess(data) {
+          setIsUploadImage(true)
           setValue('image', data.data.data?.filename as string)
         },
         onError(error) {
@@ -70,7 +77,14 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
 
   const handleSubmitForm = handleSubmit((data) => {
     if (updateCourse) {
-      console.log('>>> checkkkk update')
+      updateCourseMutation.mutate(data as CourseUpdateSchema, {
+        onSuccess(data) {
+          toast.success(data.data.message)
+        },
+        onError(error) {
+          console.log('>>> update course error', error)
+        }
+      })
     } else {
       if (imageFile == null) {
         toast.error('Course image is required')
@@ -153,7 +167,7 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
 
                 <div className='col-span-6 sm:col-span-3'>
                   <label className='block mb-2 text-sm font-medium text-gray-900 dark:text-white' htmlFor='file_input'>
-                    Not Upload
+                    {isUploadImage ? 'Uploaded' : 'Not Upload'}
                   </label>
                   <button
                     type='button'

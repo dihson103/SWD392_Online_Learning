@@ -1,6 +1,7 @@
 import { CourseResponse, CoursesResponse, CreateCourseType, SearchCourseParams } from 'src/types/course.type'
 import { ApiResponse } from 'src/types/utils.type'
 import http from 'src/utils/http'
+import { CourseUpdateSchema } from 'src/utils/rules'
 
 export const getCoursesActive = () => http.get<CoursesResponse>('/api/courses')
 
@@ -12,3 +13,5 @@ export const searchCoursesAndStatus = (params: SearchCourseParams) =>
 export const adminGetCourse = (id: number) => http.get<CourseResponse>(`api/courses/${id}/admin`)
 
 export const addNewCourse = (body: CreateCourseType) => http.post<ApiResponse<null>>('api/courses', body)
+
+export const updateCourseFunction = (body: CourseUpdateSchema) => http.put<ApiResponse<null>>('api/courses', body)
