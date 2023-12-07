@@ -11,11 +11,4 @@ export const searchCoursesAndStatus = (params: SearchCourseParams) =>
 
 export const adminGetCourse = (id: number) => http.get<CourseResponse>(`api/courses/${id}/admin`)
 
-// export const addNewCourse = (body: FormData) =>
-//   http.post<ApiResponse<null>>('api/courses', body, {
-//     headers: {
-//       'Content-Type': 'multipart/form-data'
-//     }
-//   })
-
 export const addNewCourse = (body: CreateCourseType) => http.post<ApiResponse<null>>('api/courses', body)

@@ -26,5 +26,5 @@ export type CreateCourseType = {
   courseName: string
   price: number
   title: string
-  image: File
+  image: string
 }

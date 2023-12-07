@@ -2,9 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { addNewCourse } from 'src/apis/course.api'
-import Input from 'src/components/Input'
+import { toast } from 'react-toastify'
 
+import { addNewCourse } from 'src/apis/course.api'
+import { uploadImage } from 'src/apis/file.api'
+import Input from 'src/components/Input'
 import { Course, CreateCourseType } from 'src/types/course.type'
 import { CourseUpdateSchema, CreateCourseSchema, createCourseSchema } from 'src/utils/rules'
 
@@ -31,6 +33,8 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
       setValue('image', updateCourse.image)
       setValue('status', updateCourse.status)
       setValue('price', updateCourse.price)
+    } else {
+      setValue('image', 'initial image')
     }
   }, [updateCourse, setValue])
 
@@ -43,24 +47,39 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
     mutationFn: (body: CreateCourseType) => addNewCourse(body)
   })
 
+  const uploadImageMutation = useMutation({
+    mutationFn: (body: FormData) => uploadImage(body)
+  })
+
+  const handleUploadImage = () => {
+    if (imageFile) {
+      const formData = new FormData()
+      formData.append('file', imageFile)
+      uploadImageMutation.mutate(formData, {
+        onSuccess(data) {
+          setValue('image', data.data.data?.filename as string)
+        },
+        onError(error) {
+          console.log('>>> upload error', error)
+        }
+      })
+    } else {
+      toast.error('Please choose file to upload')
+    }
+  }
+
   const handleSubmitForm = handleSubmit((data) => {
     if (updateCourse) {
+      console.log('>>> checkkkk update')
     } else {
       if (imageFile == null) {
-        console.log('>>> check image')
+        toast.error('Course image is required')
         return
       }
-      // const formdata = new FormData()
-      // formdata.append('courseName', data.courseName)
-      // formdata.append('price', data.price.toString())
-      // formdata.append('title', data.title)
-      // formdata.append('image', imageFile)
 
-      const formdata = { ...data, image: imageFile }
-
-      addCourseMutation.mutate(formdata, {
+      addCourseMutation.mutate(data, {
         onSuccess(data) {
-          console.log('data', data)
+          toast.success(data.data.message)
         },
         onError(error) {
           console.log('>>> add new course error', error)
@@ -127,6 +146,7 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
                   <input
                     className='block w-full text-sm text-gray-900 cursor-pointer mt-4'
                     id='file_input'
+                    onChange={handleFileChange}
                     type='file'
                   />
                 </div>
@@ -137,6 +157,7 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
                   </label>
                   <button
                     type='button'
+                    onClick={handleUploadImage}
                     className='inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-3 py-2 text-center'
                   >
                     <svg
@@ -174,6 +195,7 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
             <button
               className='text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
               type='button'
+              onClick={handleSubmitForm}
             >
               Save all
             </button>

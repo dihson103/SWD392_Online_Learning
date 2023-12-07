@@ -100,7 +100,7 @@ export const courseSchema = yup.object({
   price: yup.number().required('Course price is required'),
   title: yup.string().required('Course title is required'),
   status: yup.boolean().default(false),
-  image: yup.string().required('Course image is required')
+  image: yup.string().required('Image is required')
 })
 
 export type CourseUpdateSchema = yup.InferType<typeof courseSchema>
