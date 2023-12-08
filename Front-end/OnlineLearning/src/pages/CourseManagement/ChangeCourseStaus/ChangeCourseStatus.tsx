@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+
 import { getCourseStatusInfo } from 'src/apis/course.api'
 import { CourseInfoResponse } from 'src/types/course.type'
 
@@ -8,12 +10,153 @@ type PropsType = {
 }
 
 export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, courseId }: PropsType) {
+  const [courseData, setCourseData] = useState<CourseInfoResponse | undefined>(undefined)
+
   const { data } = useQuery({
     queryKey: ['course-status', courseId],
     queryFn: () => getCourseStatusInfo(courseId)
   })
 
-  const courseData: CourseInfoResponse | undefined = data?.data.data
+  useEffect(() => {
+    setCourseData(data?.data.data)
+  }, [data])
+
+  const handleCourseCheckBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const status = event.target.checked
+    setCourseData((prev) => {
+      if (!prev) {
+        return prev
+      }
+
+      if (status) {
+        return { ...prev, status }
+      }
+
+      return {
+        ...prev,
+        status,
+        lessons: prev.lessons.map((lesson) => {
+          return {
+            ...lesson,
+            status,
+            sessions: lesson.sessions.map((session) => {
+              return { ...session, status }
+            })
+          }
+        })
+      }
+    })
+  }
+
+  const handleLessonCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, lessonId: number) => {
+    setCourseData((prev) => {
+      if (!prev) {
+        return prev
+      }
+
+      const status = event.target.checked
+      if (status && !courseData?.status) {
+        return {
+          ...prev,
+          status,
+          lessons: prev.lessons.map((lesson) => {
+            if (lesson.id == lessonId) {
+              return {
+                ...lesson,
+                status: status
+              }
+            }
+            return lesson
+          })
+        }
+      }
+
+      const updatedLessons = prev.lessons.map((lesson) => {
+        if (lesson.id === lessonId) {
+          const updatedLesson = status
+            ? {
+                ...lesson,
+                status: status
+              }
+            : {
+                ...lesson,
+                status: status,
+                sessions: lesson.sessions.map((session) => ({
+                  ...session,
+                  status: status
+                }))
+              }
+
+          return updatedLesson
+        }
+
+        return lesson
+      })
+
+      const updatedCourseData = {
+        ...prev,
+        lessons: updatedLessons
+      }
+
+      return updatedCourseData
+    })
+  }
+
+  const handleSessionCheckboxChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    lessonId: number,
+    sessionId: number
+  ) => {
+    setCourseData((prev) => {
+      if (!prev) {
+        return prev
+      }
+
+      const status = event.target.checked
+
+      const lesson = prev.lessons.find((lesson) => lesson.id == lessonId)
+
+      if (status && lesson?.status == false) {
+        return {
+          ...prev,
+          status,
+          lessons: prev.lessons.map((lesson) => {
+            if (lesson.id == lessonId) {
+              return {
+                ...lesson,
+                status,
+                sessions: lesson.sessions.map((session) => {
+                  if (session.id == sessionId) {
+                    return { ...session, status }
+                  }
+                  return session
+                })
+              }
+            }
+            return lesson
+          })
+        }
+      }
+
+      return {
+        ...prev,
+        lessons: prev.lessons.map((lesson) => {
+          if (lesson.id == lessonId) {
+            return {
+              ...lesson,
+              sessions: lesson.sessions.map((session) => {
+                if (session.id == sessionId) {
+                  return { ...session, status }
+                }
+                return session
+              })
+            }
+          }
+          return lesson
+        })
+      }
+    })
+  }
 
   return (
     <div
@@ -42,12 +185,6 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
           </div>
           <div className='p-6 space-y-6'>
             <ul>
-              <li>
-                <input type='checkbox' name='tall' id='tall' className='mr-2' />
-                <label htmlFor='tall' className='text-blue-600'>
-                  Change all to INACTIVE
-                </label>
-              </li>
               <li className='mt-2'>
                 <input type='checkbox' name='tall' id='tall' className='mr-2' />
                 <label htmlFor='tall' className='text-red-600'>
@@ -55,20 +192,44 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
                 </label>
               </li>
               <li className='mt-2'>
-                <input type='checkbox' name='tall' id='tall' className='mr-2' />
+                <input
+                  type='checkbox'
+                  name='tall'
+                  id='tall'
+                  className='mr-2'
+                  defaultChecked={courseData?.status}
+                  checked={courseData?.status}
+                  onChange={handleCourseCheckBoxChange}
+                />
                 <label htmlFor='tall'>{courseData?.name}</label>
                 <ul className='ml-10 mt-2'>
                   {courseData?.lessons &&
                     courseData.lessons.map((lesson) => (
                       <li key={'lesson' + lesson.id}>
-                        <input type='checkbox' name='tall-1' id='buildings' className='mr-2' />
-                        <label htmlFor='tall-1'>{lesson.name}</label>
+                        <input
+                          type='checkbox'
+                          name={`tall-${lesson.id}`}
+                          id={`tall-${lesson.id}`}
+                          defaultChecked={lesson.status}
+                          checked={lesson.status}
+                          className='mr-2'
+                          onChange={(event) => handleLessonCheckboxChange(event, lesson.id)}
+                        />
+                        <label htmlFor={`tall-${lesson.id}`}>{lesson.name}</label>
                         <ul className='ml-10'>
                           {lesson.sessions &&
                             lesson.sessions.map((session) => (
                               <li className='mt-2' key={'session' + session.id}>
-                                <input type='checkbox' name='tall-2-1' id='andre' className='mr-2' />
-                                <label htmlFor='tall-2-1'>{session.name}</label>
+                                <input
+                                  type='checkbox'
+                                  name={`tall-${lesson.id}-${session.id}`}
+                                  id={`tall-${lesson.id}-${session.id}`}
+                                  defaultChecked={session?.status}
+                                  checked={session.status}
+                                  className='mr-2'
+                                  onChange={(event) => handleSessionCheckboxChange(event, lesson.id, session.id)}
+                                />
+                                <label htmlFor={`tall-${lesson.id}-${session.id}`}>{session.name}</label>
                               </li>
                             ))}
                         </ul>
