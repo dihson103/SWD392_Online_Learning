@@ -113,3 +113,22 @@ export const createCourseSchema = yup.object({
 })
 
 export type CreateCourseSchema = yup.InferType<typeof createCourseSchema>
+
+export const lessonUpdateSchema = yup.object({
+  id: yup.number().required('Lesson id is required'),
+  title: yup.string().required('Lesson title is required'),
+  content: yup.string().required('Lesson title is required'),
+  status: yup.boolean().default(false),
+  courseId: yup.number().required('Course id is required')
+})
+
+export type LessonUpdateSchema = yup.InferType<typeof lessonUpdateSchema>
+
+export const lessonCreateSchema = yup.object({
+  title: lessonUpdateSchema.fields.title as yup.StringSchema<string>,
+  content: lessonUpdateSchema.fields.content as yup.StringSchema<string>,
+  status: lessonUpdateSchema.fields.status as yup.BooleanSchema<boolean>,
+  courseId: lessonUpdateSchema.fields.courseId as yup.NumberSchema<number>
+})
+
+export type LessonCreateSchema = yup.InferType<typeof lessonCreateSchema>

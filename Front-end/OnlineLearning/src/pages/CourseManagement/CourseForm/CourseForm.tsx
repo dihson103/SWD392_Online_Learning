@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useMutation } from '@tanstack/react-query'
+import { QueryObserverResult, RefetchOptions, useMutation } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -7,15 +8,19 @@ import { toast } from 'react-toastify'
 import { addNewCourse, updateCourseFunction } from 'src/apis/course.api'
 import { uploadImage } from 'src/apis/file.api'
 import Input from 'src/components/Input'
-import { Course, CreateCourseType } from 'src/types/course.type'
+import { Course, CoursesResponse, CreateCourseType } from 'src/types/course.type'
 import { CourseUpdateSchema, CreateCourseSchema, createCourseSchema } from 'src/utils/rules'
 
 interface PropsType {
   handleFormDisplay: (isDisplay: boolean, course: Course | null) => () => void
   updateCourse: Course | null
+  refetch: (
+    options?: RefetchOptions | undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => Promise<QueryObserverResult<AxiosResponse<CoursesResponse, any>, Error>>
 }
 
-export default function CourseForm({ handleFormDisplay, updateCourse }: PropsType) {
+export default function CourseForm({ handleFormDisplay, updateCourse, refetch }: PropsType) {
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isUploadImage, setIsUploadImage] = useState<boolean>(false)
   const {
@@ -79,6 +84,8 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
     if (updateCourse) {
       updateCourseMutation.mutate(data as CourseUpdateSchema, {
         onSuccess(data) {
+          handleFormDisplay(false, null)()
+          refetch()
           toast.success(data.data.message)
         },
         onError(error) {
@@ -93,6 +100,8 @@ export default function CourseForm({ handleFormDisplay, updateCourse }: PropsTyp
 
       addCourseMutation.mutate(data, {
         onSuccess(data) {
+          handleFormDisplay(false, null)()
+          refetch()
           toast.success(data.data.message)
         },
         onError(error) {

@@ -1,15 +1,21 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, RefetchOptions, QueryObserverResult } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 import { changeCourseStatus, getCourseStatusInfo } from 'src/apis/course.api'
-import { ChangeCourseStatusRequest, CourseInfoResponse } from 'src/types/course.type'
+import { ChangeCourseStatusRequest, CourseInfoResponse, CoursesResponse } from 'src/types/course.type'
 
 type PropsType = {
   handleChangeCourseStatusDisplay: (courseId: number | null) => () => void
   courseId: number
+  refetch: (
+    options?: RefetchOptions | undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ) => Promise<QueryObserverResult<AxiosResponse<CoursesResponse, any>, Error>>
 }
 
-export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, courseId }: PropsType) {
+export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, courseId, refetch }: PropsType) {
   const [courseData, setCourseData] = useState<CourseInfoResponse | undefined>(undefined)
 
   const { data } = useQuery({
@@ -216,7 +222,9 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
 
     changeCourseStatusMutation.mutate(payload, {
       onSuccess(data) {
-        console.log('change status success', data.data.message)
+        handleChangeCourseStatusDisplay(null)()
+        refetch()
+        toast.success(data.data.message)
       },
       onError(error) {
         console.log('error', error)

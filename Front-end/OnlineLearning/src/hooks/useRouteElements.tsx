@@ -9,6 +9,7 @@ import RegisterLayout from 'src/layouts/RegisterLayout'
 import CourseDetails from 'src/pages/CourseDetails'
 import CourseList from 'src/pages/CourseList'
 import CourseManagement from 'src/pages/CourseManagement'
+import LessonList from 'src/pages/CourseManagement/LessonList'
 import Login from 'src/pages/Login'
 import NotFound from 'src/pages/NotFound'
 import Profile from 'src/pages/Profile'
@@ -115,6 +116,14 @@ export default function useRouteElements() {
           element: (
             <MainLayout>
               <CourseManagement />
+            </MainLayout>
+          )
+        },
+        {
+          path: path.lesson_management,
+          element: (
+            <MainLayout>
+              <LessonList />
             </MainLayout>
           )
         }

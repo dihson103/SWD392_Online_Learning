@@ -4,7 +4,8 @@ const path = {
   profile: '/profile/:username',
   courseDetails: 'courses/:nameId',
   user_management: '/admin/users',
-  course_management: '/admin/courses'
+  course_management: '/admin/courses',
+  lesson_management: '/admin/courses/:courseId/lessons'
 }
 
 export default path

@@ -1,63 +1,28 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { getLessonsByCourse } from 'src/apis/lesson.api'
+import LessonForm from './LessonForm'
+import { Lesson } from 'src/types/lesson.type'
 
-import { searchCoursesAndStatus } from 'src/apis/course.api'
-import ChangeCourseStatus from './ChangeCourseStaus'
-import CourseForm from './CourseForm'
-import { Course, SearchCourseParams } from 'src/types/course.type'
-import useQueryParams from 'src/hooks/useQueryParams'
+export default function LessonList() {
+  const { courseId } = useParams()
+  const [isFormDisplay, setIsFormDisplay] = useState<boolean>(false)
+  const [lessonUpdate, setLessonUpdate] = useState<Lesson | null>(null)
 
-export type QueryConfig = {
-  [key in keyof SearchCourseParams]?: string
-}
+  const isIdValid = courseId !== undefined && /^[\d+]+$/.test(courseId)
 
-export default function CourseManagement() {
-  const [display, setDisplay] = useState<boolean>(false)
-  const [updateCourse, setUpdateCourse] = useState<Course | null>(null)
-  const [idCourseChangeStatus, setIdCourseChangeStatus] = useState<number | null>(null)
-  const navigate = useNavigate()
-
-  const queryConfig: QueryConfig = useQueryParams()
-
-  const queryParams: SearchCourseParams = {
-    searchValue: queryConfig.searchValue ? queryConfig.searchValue : '',
-    status: queryConfig.status == 'false' ? 'false' : 'true'
-  }
-
-  const handleFormDisplay = (isDisplay: boolean, course: Course | null) => () => {
-    setUpdateCourse(course)
-    setDisplay(isDisplay)
-  }
-
-  const handleChangeCourseStatusDisplay = (courseId: number | null) => () => {
-    setIdCourseChangeStatus(courseId)
+  const handleDisplayForm = (status: boolean, lesson: Lesson | null) => () => {
+    setIsFormDisplay(status)
+    setLessonUpdate(lesson)
   }
 
   const { data, refetch } = useQuery({
-    queryKey: ['admin/courses', queryParams],
-    queryFn: () => searchCoursesAndStatus(queryParams)
+    queryKey: ['lesson', courseId],
+    queryFn: () => (isIdValid ? getLessonsByCourse(Number(courseId)) : Promise.resolve(null))
   })
 
-  const handleSearchValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    queryParams.searchValue = event.target.value
-    handleSearchCourse()
-  }
-
-  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    queryParams.status = event.target.value === 'ACTIVE' ? 'true' : 'false'
-    handleSearchCourse()
-  }
-
-  const handleSearchCourse = () => {
-    if (queryParams.searchValue) {
-      navigate(`/admin/courses?status=${queryParams.status}&searchValue=${queryParams.searchValue}`)
-    } else {
-      navigate(`/admin/courses?status=${queryParams.status}`)
-    }
-  }
-
-  const courseData: Course[] | undefined = data?.data.data
+  const lessonData = data?.data.data
 
   return (
     <>
@@ -139,18 +104,13 @@ export default function CourseManagement() {
                       type='text'
                       name='email'
                       id='products-search'
-                      onChange={handleSearchValueChange}
                       className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
                       placeholder='Search for products'
                     />
                   </div>
                 </form>
                 <div className='flex pl-0 mt-3 space-x-1 sm:pl-2 sm:mt-0'>
-                  <select
-                    className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'
-                    onChange={handleStatusChange}
-                    value={queryParams.status === 'true' ? 'ACTIVE' : 'INACTIVE'}
-                  >
+                  <select className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500'>
                     <option value='ACTIVE'>ACTIVE</option>
                     <option value='INACTIVE'>INACTIVE</option>
                   </select>
@@ -164,7 +124,7 @@ export default function CourseManagement() {
                 data-drawer-show='drawer-create-product-default'
                 aria-controls='drawer-create-product-default'
                 data-drawer-placement='right'
-                onClick={handleFormDisplay(true, null)}
+                onClick={handleDisplayForm(true, null)}
               >
                 Add new course
               </button>
@@ -196,25 +156,13 @@ export default function CourseManagement() {
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Course Name
-                      </th>
-                      <th
-                        scope='col'
-                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
-                      >
                         Title
                       </th>
                       <th
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Price
-                      </th>
-                      <th
-                        scope='col'
-                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
-                      >
-                        Create Date
+                        Content
                       </th>
                       <th
                         scope='col'
@@ -226,20 +174,14 @@ export default function CourseManagement() {
                         scope='col'
                         className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
                       >
-                        Public Date
-                      </th>
-                      <th
-                        scope='col'
-                        className='p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400'
-                      >
                         Actions
                       </th>
                     </tr>
                   </thead>
                   <tbody className='bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700'>
-                    {courseData &&
-                      courseData.map((course) => (
-                        <tr className='hover:bg-gray-100 dark:hover:bg-gray-700' key={course.id}>
+                    {lessonData &&
+                      lessonData.map((lesson) => (
+                        <tr className='hover:bg-gray-100 dark:hover:bg-gray-700' key={lesson.id}>
                           <td className='w-4 p-4'>
                             <div className='flex items-center'>
                               <input
@@ -254,24 +196,13 @@ export default function CourseManagement() {
                             </div>
                           </td>
                           <td className='p-4 text-sm font-normal text-gray-500 whitespace-nowrap dark:text-gray-400'>
-                            <div className='text-base font-semibold text-gray-900 dark:text-white'>
-                              {course.courseName}
-                            </div>
+                            <div className='text-base font-semibold text-gray-900 dark:text-white'>{lesson.title}</div>
                           </td>
                           <td className='max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400'>
-                            {course.title}
+                            {lesson.content}
                           </td>
                           <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {'$ ' + course.price}
-                          </td>
-                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {course.createdDate.substring(0, 10)}
-                          </td>
-                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {course.status ? 'ACTIVE' : 'INACTIVE'}
-                          </td>
-                          <td className='p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                            {course.publicDate ? course.publicDate.substring(0, 10) : ''}
+                            {lesson.status ? 'ACTIVE' : 'INACTIVE'}
                           </td>
                           <td className='p-4 space-x-2 whitespace-nowrap'>
                             <button
@@ -280,8 +211,8 @@ export default function CourseManagement() {
                               data-drawer-target='drawer-update-product-default'
                               data-drawer-show='drawer-update-product-default'
                               aria-controls='drawer-update-product-default'
-                              onClick={handleFormDisplay(true, course)}
                               data-drawer-placement='right'
+                              onClick={handleDisplayForm(true, lesson)}
                               className='inline-flex items-center text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-3 py-2 text-center me-2 mb-2'
                             >
                               <svg
@@ -306,7 +237,6 @@ export default function CourseManagement() {
                               data-drawer-show='drawer-delete-product-default'
                               aria-controls='drawer-delete-product-default'
                               data-drawer-placement='right'
-                              onClick={handleChangeCourseStatusDisplay(course.id)}
                               className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
                             >
                               <svg
@@ -323,42 +253,6 @@ export default function CourseManagement() {
                               </svg>
                               Change Status
                             </button>
-                            <Link
-                              to={`/courses/${course.id}`}
-                              className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
-                            >
-                              <svg
-                                className='w-4 h-4 mr-2'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path
-                                  fillRule='evenodd'
-                                  d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                                  clipRule='evenodd'
-                                />
-                              </svg>
-                              View details
-                            </Link>
-                            <Link
-                              to={`/admin/courses/${course.id}/lessons`}
-                              className='inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900'
-                            >
-                              <svg
-                                className='w-4 h-4 mr-2'
-                                fill='currentColor'
-                                viewBox='0 0 20 20'
-                                xmlns='http://www.w3.org/2000/svg'
-                              >
-                                <path
-                                  fillRule='evenodd'
-                                  d='M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z'
-                                  clipRule='evenodd'
-                                />
-                              </svg>
-                              View lesson list
-                            </Link>
                           </td>
                         </tr>
                       ))}
@@ -439,17 +333,16 @@ export default function CourseManagement() {
             </Link>
           </div>
         </div>
+
+        {isFormDisplay && (
+          <LessonForm
+            handleDisplayForm={handleDisplayForm}
+            lessonUpdate={lessonUpdate}
+            courseId={Number(courseId)}
+            refetch={refetch}
+          />
+        )}
       </div>
-
-      {display && <CourseForm handleFormDisplay={handleFormDisplay} updateCourse={updateCourse} refetch={refetch} />}
-
-      {idCourseChangeStatus && (
-        <ChangeCourseStatus
-          handleChangeCourseStatusDisplay={handleChangeCourseStatusDisplay}
-          courseId={idCourseChangeStatus}
-          refetch={refetch}
-        />
-      )}
     </>
   )
 }
