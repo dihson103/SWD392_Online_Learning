@@ -1,4 +1,5 @@
 import {
+  ChangeCourseStatusRequest,
   CourseInfoResponse,
   CourseResponse,
   CoursesResponse,
@@ -24,3 +25,6 @@ export const updateCourseFunction = (body: CourseUpdateSchema) => http.put<ApiRe
 
 export const getCourseStatusInfo = (id: number) =>
   http.get<ApiResponse<CourseInfoResponse>>(`api/courses/get-status-info/${id}`)
+
+export const changeCourseStatus = (body: ChangeCourseStatusRequest) =>
+  http.put<ApiResponse<null>>('api/courses/change-status', body)

@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
-import { getCourseStatusInfo } from 'src/apis/course.api'
-import { CourseInfoResponse } from 'src/types/course.type'
+import { changeCourseStatus, getCourseStatusInfo } from 'src/apis/course.api'
+import { ChangeCourseStatusRequest, CourseInfoResponse } from 'src/types/course.type'
 
 type PropsType = {
   handleChangeCourseStatusDisplay: (courseId: number | null) => () => void
@@ -21,6 +21,46 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
     setCourseData(data?.data.data)
   }, [data])
 
+  const changeCourseStatusMutation = useMutation({
+    mutationFn: (body: ChangeCourseStatusRequest) => changeCourseStatus(body)
+  })
+
+  const convertAllToStatus = (status: boolean, prev: CourseInfoResponse): CourseInfoResponse => {
+    return {
+      ...prev,
+      status,
+      lessons: prev.lessons.map((lesson) => {
+        return {
+          ...lesson,
+          status,
+          sessions: lesson.sessions.map((session) => {
+            return { ...session, status }
+          })
+        }
+      })
+    }
+  }
+
+  const handleActiveAll = () => {
+    setCourseData((prev) => {
+      if (!prev) {
+        return prev
+      }
+
+      return convertAllToStatus(true, prev)
+    })
+  }
+
+  const handleInActiveAll = () => {
+    setCourseData((prev) => {
+      if (!prev) {
+        return prev
+      }
+
+      return convertAllToStatus(false, prev)
+    })
+  }
+
   const handleCourseCheckBoxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const status = event.target.checked
     setCourseData((prev) => {
@@ -28,23 +68,13 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
         return prev
       }
 
+      // if status is true update course's status only
       if (status) {
         return { ...prev, status }
       }
 
-      return {
-        ...prev,
-        status,
-        lessons: prev.lessons.map((lesson) => {
-          return {
-            ...lesson,
-            status,
-            sessions: lesson.sessions.map((session) => {
-              return { ...session, status }
-            })
-          }
-        })
-      }
+      // if status is false update all status of course, lesson and session to false
+      return convertAllToStatus(status, prev)
     })
   }
 
@@ -158,6 +188,42 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
     })
   }
 
+  const convertToChangeCourseStatusPayload = (): ChangeCourseStatusRequest | null => {
+    if (!courseData) {
+      return null
+    }
+
+    const lessonIds = courseData.lessons.filter((lesson) => lesson.status).map((lesson) => lesson.id)
+
+    const sessionIds = courseData.lessons
+      .filter((lesson) => lesson.status)
+      .flatMap((lesson) => lesson.sessions.filter((session) => session.status).map((session) => session.id))
+
+    return {
+      courseId: courseData.id,
+      status: courseData.status,
+      lessonIds,
+      sessionIds
+    }
+  }
+
+  const handleSubmitChange = () => {
+    const payload = convertToChangeCourseStatusPayload()
+
+    if (!payload) {
+      return
+    }
+
+    changeCourseStatusMutation.mutate(payload, {
+      onSuccess(data) {
+        console.log('change status success', data.data.message)
+      },
+      onError(error) {
+        console.log('error', error)
+      }
+    })
+  }
+
   return (
     <div
       aria-hidden={true}
@@ -184,21 +250,34 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
             </button>
           </div>
           <div className='p-6 space-y-6'>
+            <button
+              type='button'
+              onClick={handleActiveAll}
+              className='relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800'
+            >
+              <span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0'>
+                Change all to ACTIVE
+              </span>
+            </button>
+
+            <button
+              type='button'
+              onClick={handleInActiveAll}
+              className='relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800'
+            >
+              <span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0'>
+                Change all to INACTIVE
+              </span>
+            </button>
+
             <ul>
-              <li className='mt-2'>
-                <input type='checkbox' name='tall' id='tall' className='mr-2' />
-                <label htmlFor='tall' className='text-red-600'>
-                  Change all to ACTIVE
-                </label>
-              </li>
               <li className='mt-2'>
                 <input
                   type='checkbox'
                   name='tall'
                   id='tall'
                   className='mr-2'
-                  defaultChecked={courseData?.status}
-                  checked={courseData?.status}
+                  checked={courseData?.status || false}
                   onChange={handleCourseCheckBoxChange}
                 />
                 <label htmlFor='tall'>{courseData?.name}</label>
@@ -210,7 +289,6 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
                           type='checkbox'
                           name={`tall-${lesson.id}`}
                           id={`tall-${lesson.id}`}
-                          defaultChecked={lesson.status}
                           checked={lesson.status}
                           className='mr-2'
                           onChange={(event) => handleLessonCheckboxChange(event, lesson.id)}
@@ -224,7 +302,6 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
                                   type='checkbox'
                                   name={`tall-${lesson.id}-${session.id}`}
                                   id={`tall-${lesson.id}-${session.id}`}
-                                  defaultChecked={session?.status}
                                   checked={session.status}
                                   className='mr-2'
                                   onChange={(event) => handleSessionCheckboxChange(event, lesson.id, session.id)}
@@ -244,6 +321,7 @@ export default function ChangeCourseStatus({ handleChangeCourseStatusDisplay, co
             <button
               className='text-white bg-gradient-to-br from-pink-500 to-orange-400 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2'
               type='button'
+              onClick={handleSubmitChange}
             >
               Save all
             </button>

@@ -36,3 +36,10 @@ export type CourseInfoResponse = {
   status: boolean
   lessons: LessonInfoResponse[]
 }
+
+export type ChangeCourseStatusRequest = {
+  courseId: number
+  status: boolean
+  lessonIds: number[]
+  sessionIds: number[]
+}

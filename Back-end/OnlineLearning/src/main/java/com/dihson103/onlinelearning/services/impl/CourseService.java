@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -165,11 +166,46 @@ public class CourseService implements ICourseService {
                 .build();
     }
 
-    private void updateAllRequestToTrue(CourseStatusRequest courseStatusRequest, Course course ) {
-        List<Lesson> lessons = getLessons(courseStatusRequest.getLessonIds());
-        List<Session> sessions = getSessions(courseStatusRequest.getSessionIds());
-        updateStatusAll(course, lessons, sessions, true);
+    private void updateAllRequestToTrue(CourseStatusRequest courseStatusRequest, Course course) {
+        if (!course.getStatus()) {
+            course.setPublicDate(LocalDateTime.now());
+            course.setStatus(true);
+        }
+
+        List<Lesson> lessons = course.getLessons()
+                .stream()
+                .map(lesson -> {
+                    if (isIdInRequest(lesson.getId(), courseStatusRequest.getLessonIds())) {
+                        lesson.setStatus(true);
+                    } else {
+                        lesson.setStatus(false);
+                    }
+                    return lesson;
+                })
+                .toList();
+
+        List<Session> sessions = lessons.stream()
+                .flatMap(lesson -> lesson.getSessions()
+                        .stream()
+                        .map(session -> {
+                            if (isIdInRequest(session.getId(), courseStatusRequest.getSessionIds())) {
+                                session.setStatus(true);
+                            } else {
+                                session.setStatus(false);
+                            }
+                            return session;
+                        }))
+                .toList();
+
+        courseRepository.save(course);
+        lessonRepository.saveAll(lessons);
+        sessionRepository.saveAll(sessions);
     }
+
+    private boolean isIdInRequest(Integer id, List<Integer> request) {
+        return request.stream().anyMatch(number -> Objects.equals(number, id));
+    }
+
 
     private void updateAllStatusToFalse(Course course) {
         List<Lesson> lessons = course.getLessons();
