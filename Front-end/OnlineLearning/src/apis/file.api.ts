@@ -10,3 +10,10 @@ export const uploadImage = (body: FormData) =>
       'Content-Type': 'multipart/form-data'
     }
   })
+
+export const uploadVideo = (body: FormData) =>
+  http.post<ApiResponse<FileReponse>>('api/media/videos', body, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })

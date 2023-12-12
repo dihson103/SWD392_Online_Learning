@@ -14,6 +14,7 @@ import Login from 'src/pages/Login'
 import NotFound from 'src/pages/NotFound'
 import Profile from 'src/pages/Profile'
 import Register from 'src/pages/Register'
+import SessionList from 'src/pages/SessionList'
 import UserManagement from 'src/pages/UserManagement'
 
 const ProtectedRoute = () => {
@@ -124,6 +125,14 @@ export default function useRouteElements() {
           element: (
             <MainLayout>
               <LessonList />
+            </MainLayout>
+          )
+        },
+        {
+          path: path.session_management,
+          element: (
+            <MainLayout>
+              <SessionList />
             </MainLayout>
           )
         }

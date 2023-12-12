@@ -132,3 +132,22 @@ export const lessonCreateSchema = yup.object({
 })
 
 export type LessonCreateSchema = yup.InferType<typeof lessonCreateSchema>
+
+export const sessionCreateSchema = yup.object({
+  sessionName: yup.string().required('Session name is required'),
+  videoAddress: yup.string().required('Video address is required'),
+  status: yup.boolean().default(false),
+  lessonId: yup.number().required('Lession id is required')
+})
+
+export type SessionCreateSchema = yup.InferType<typeof sessionCreateSchema>
+
+export const sessionUpdateSchema = yup.object({
+  id: yup.number().required('Session id is required'),
+  sessionName: sessionCreateSchema.fields.sessionName as yup.StringSchema<string>,
+  videoAddress: sessionCreateSchema.fields.videoAddress as yup.StringSchema<string>,
+  status: sessionCreateSchema.fields.status as yup.BooleanSchema<boolean>,
+  lessonId: sessionCreateSchema.fields.lessonId as yup.NumberSchema<number>
+})
+
+export type SessionUpdateSchema = yup.InferType<typeof sessionUpdateSchema>
