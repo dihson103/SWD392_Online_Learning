@@ -3,13 +3,12 @@ import { useParams } from 'react-router-dom'
 import { getCourseDetail } from 'src/apis/course.api'
 import { getLessonsByCourse } from 'src/apis/lesson.api'
 import Lessons from 'src/components/Lessons'
+import { baseURL } from 'src/utils/http'
 import { getIdFromNameId } from 'src/utils/utils'
 
 export default function CourseDetails() {
   const { nameId } = useParams()
-
   const id = getIdFromNameId(nameId as string)
-
   const isIdValid = id !== undefined && /^[\d+]+$/.test(id)
 
   const { data: courseData } = useQuery({
@@ -22,18 +21,14 @@ export default function CourseDetails() {
     queryFn: () => (isIdValid ? getLessonsByCourse(Number(id)) : Promise.resolve(null))
   })
 
-  console.log('lessons', lessonsData)
+  const imageUrl = `${baseURL}api/media/images/${courseData?.data.data?.image}`
 
   return (
     <div className='container mx-20 mt-20'>
-      <div className='flex'>
+      <div className='flex flex-col md:flex-row lg:flex-col xl:flex-row'>
         <div className='flex-auto w-2/3 mr-5'>
           <div className='xl:h-[470px] h-[350px] mb-10 course-main-thumb'>
-            <img
-              src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYohTg4vT4k7N_BG3Vd8o_6r-Q3UP_5aTW9g&usqp=CAU'
-              alt=''
-              className=' rounded-md object-fut w-full h-full block'
-            />
+            <img src={imageUrl} alt='' className=' rounded-md object-fut w-full h-full block' />
           </div>
           <h2 className='text-3xl font-semibold text-gray-900 dark:text-white'>{courseData?.data.data?.courseName}</h2>
 
@@ -150,7 +145,7 @@ export default function CourseDetails() {
               type='button'
               className='text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-200 dark:focus:ring-blue-900 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex justify-center w-full text-center'
             >
-              Choose plan
+              Enroll now
             </button>
           </div>
         </div>

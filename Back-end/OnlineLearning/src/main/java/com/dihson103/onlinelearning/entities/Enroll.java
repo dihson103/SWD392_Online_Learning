@@ -1,5 +1,6 @@
 package com.dihson103.onlinelearning.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class Enroll {
     @ManyToOne
     @MapsId("courseId")
     @JoinColumn(name = "course_id", nullable = false)
+    @JsonBackReference
     private Course course;
 
     @Column(nullable = false)

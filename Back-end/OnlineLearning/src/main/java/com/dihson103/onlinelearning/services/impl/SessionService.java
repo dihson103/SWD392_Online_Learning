@@ -15,6 +15,7 @@ import com.dihson103.onlinelearning.services.ISessionService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,11 +64,24 @@ public class SessionService implements ISessionService {
     }
 
     @Override
-    public SessionResponse getSessionActiveById(Integer sessionId, String username) {
+    public SessionResponse getSessionActiveById(Integer sessionId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Please login to view this feature");
+        }
+
         Session session = sessionRepository.findByIdAndStatusIsTrue(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find session has id: " + sessionId));
-        Enroll enroll = enrollRepository.getEnrollByUsernameAndCourse(username, session.getLesson().getCourse().getId())
-                .orElseThrow(() -> new IllegalArgumentException("You were not enrolled this course."));
+
+        boolean isAdmin = authentication.getAuthorities()
+                .stream()
+                .anyMatch(role -> role.getAuthority().contains("ADMIN"));
+
+        if (!isAdmin) {
+            String username = authentication.getName();
+            Enroll enroll = enrollRepository.getEnrollByUsernameAndCourse(username, session.getLesson().getCourse().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("You were not enrolled this course."));
+        }
+
         return modelMapper.map(session, SessionResponse.class);
     }
 

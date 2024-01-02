@@ -1,5 +1,6 @@
 package com.dihson103.onlinelearning.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,6 +32,7 @@ public class Discount {
 
     @ManyToOne
     @JoinColumn(name = "courseId", nullable = false)
+    @JsonBackReference
     private Course course;
 
 }

@@ -48,12 +48,12 @@ public class SessionController {
                 .build();
     }
 
-    @GetMapping({"session-id"})
+    @GetMapping("{session-id}")
     @ResponseStatus(OK)
     public ApiResponse<SessionResponse> getSession(@PathVariable("session-id") Integer sessionId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        SessionResponse sessionResponse = service.getSessionActiveById(sessionId, username);
+
+        SessionResponse sessionResponse = service.getSessionActiveById(sessionId, authentication);
         return ApiResponse.<SessionResponse>builder()
                 .message("Get session has id: " + sessionId + " success.")
                 .data(sessionResponse)

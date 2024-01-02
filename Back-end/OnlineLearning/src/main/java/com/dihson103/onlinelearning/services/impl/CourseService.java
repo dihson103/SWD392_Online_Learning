@@ -12,8 +12,10 @@ import com.dihson103.onlinelearning.repositories.EnrollRepository;
 import com.dihson103.onlinelearning.repositories.LessonRepository;
 import com.dihson103.onlinelearning.repositories.SessionRepository;
 import com.dihson103.onlinelearning.services.FiltersSpecification;
+import com.dihson103.onlinelearning.services.ICourseRedisService;
 import com.dihson103.onlinelearning.services.ICourseService;
 import com.dihson103.onlinelearning.utils.FileUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +38,7 @@ public class CourseService implements ICourseService {
     private final EnrollRepository enrollRepository;
     private final ModelMapper modelMapper;
     private final FiltersSpecification<Course> filtersSpecification;
+    private final ICourseRedisService redisService;
 
     @Override
     public void createCourse(CreateCourseRequest courseRequest) {
@@ -51,12 +54,17 @@ public class CourseService implements ICourseService {
     }
 
     @Override
-    public void updateCourse(UpdateCourseRequest courseRequest) {
+    public void updateCourse(UpdateCourseRequest courseRequest) throws JsonProcessingException {
         Course course = findCourseById(courseRequest.getId());
         course.setCourseName(courseRequest.getCourseName());
         course.setPrice(courseRequest.getPrice());
         course.setTitle(courseRequest.getTitle());
         course.setImage(courseRequest.getImage());
+
+        if(redisService.getCourseFromRedisById(course.getId()) != null){
+            redisService.saveCourseToRedisById(course.getId(), modelMapper.map(course, CourseResponse.class));
+        }
+
         courseRepository.save(course);
     }
 
@@ -68,9 +76,17 @@ public class CourseService implements ICourseService {
 
     @Override
     public CourseResponse getCourseByIdAndStatusIsTrue(Integer courseId) {
+        Course redisCourse = redisService.getCourseFromRedisById(courseId);
+        if(redisCourse != null){
+            return modelMapper.map(redisCourse, CourseResponse.class);
+        }
+
         Course course = courseRepository.findByIdAndStatusIsTrue(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Can not find course has id: " + courseId));
         CourseResponse courseResponse = modelMapper.map(course, CourseResponse.class);
+
+        redisService.saveCourseToRedisById(courseId, courseResponse);
+
         return courseResponse;
     }
 

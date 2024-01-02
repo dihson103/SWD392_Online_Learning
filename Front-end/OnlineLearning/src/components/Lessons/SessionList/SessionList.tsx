@@ -12,10 +12,12 @@ export default function SessionList({ lessonId }: PropsType) {
   })
 
   return (
-    <div className='p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900'>
+    <div className='p-5 border border-b-0 border-gray-200'>
       {data?.data.data?.map((session, index) => (
         <div key={session.id}>
-          <p className='mb-2 text-gray-500 dark:text-gray-400'>{session.sessionName}</p>
+          <p className='mb-2 p-2 text-gray-500 cursor-pointer hover:bg-gray-400 dark:text-gray-400'>
+            {session.sessionName}
+          </p>
           {data?.data.data?.length == index + 1 || <div className='w-full h-px bg-gray-200 mb-2'></div>}
         </div>
       ))}

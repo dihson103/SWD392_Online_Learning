@@ -6,7 +6,8 @@ const path = {
   user_management: '/admin/users',
   course_management: '/admin/courses',
   lesson_management: '/admin/courses/:courseId/lessons',
-  session_management: '/admin/lessons/:lessonId/sessions'
+  session_management: '/admin/lessons/:lessonId/sessions',
+  learning: '/learning/:nameId'
 }
 
 export default path

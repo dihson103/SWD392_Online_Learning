@@ -11,6 +11,8 @@ import {
 import { AuthResponse } from 'src/types/auth.type'
 import { getRefreshToken } from 'src/apis/auth.api'
 
+export const baseURL = 'http://localhost:8080/'
+
 class Http {
   instance: AxiosInstance
   private accessToken: string | null
@@ -20,7 +22,7 @@ class Http {
     this.accessToken = getAccessTokenFromLS()
     this.refreshTokenRequest = null
     this.instance = axios.create({
-      baseURL: 'http://localhost:8080/',
+      baseURL: baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'

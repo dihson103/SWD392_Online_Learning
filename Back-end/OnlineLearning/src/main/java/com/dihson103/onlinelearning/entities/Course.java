@@ -1,5 +1,8 @@
 package com.dihson103.onlinelearning.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity(name = "Course")
+@JsonIgnoreProperties({"enrolls", "lessons", "discounts"})
 public class Course {
 
     @Id
@@ -41,13 +45,16 @@ public class Course {
 
     private String image;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Discount> discounts;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Enroll> enrolls;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Lesson> lessons;
 
 }

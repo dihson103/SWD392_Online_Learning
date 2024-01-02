@@ -14,3 +14,5 @@ export type SessionInfoResponse = {
   name: string
   status: boolean
 }
+
+export type SessionResponse = ApiResponse<Session>

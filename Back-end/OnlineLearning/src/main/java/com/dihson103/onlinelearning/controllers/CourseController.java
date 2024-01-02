@@ -3,7 +3,9 @@ package com.dihson103.onlinelearning.controllers;
 import com.dihson103.onlinelearning.dto.common.ApiResponse;
 import com.dihson103.onlinelearning.dto.course.*;
 import com.dihson103.onlinelearning.dto.filter.FilterRequestDto;
+import com.dihson103.onlinelearning.services.ICourseRedisService;
 import com.dihson103.onlinelearning.services.ICourseService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +43,7 @@ public class CourseController {
     @PutMapping
     @ResponseStatus(OK)
     @PreAuthorize("hasAnyAuthority('ADMIN', 'ADMIN_COURSE')")
-    public ApiResponse updateCourse(@RequestBody @Valid UpdateCourseRequest courseRequest){
+    public ApiResponse updateCourse(@RequestBody @Valid UpdateCourseRequest courseRequest) throws JsonProcessingException {
         service.updateCourse(courseRequest);
         return ApiResponse.builder()
                 .message("Update course has id: " + courseRequest.getId() + " success.")
@@ -51,8 +53,10 @@ public class CourseController {
     @GetMapping("{course-id}")
     @ResponseStatus(OK)
     @PermitAll
-    public ApiResponse<CourseResponse> getCourseActive(@PathVariable("course-id") Integer courseId){
+    public ApiResponse<CourseResponse> getCourseActive(@PathVariable("course-id") Integer courseId)
+            throws JsonProcessingException {
         CourseResponse courseResponse = service.getCourseByIdAndStatusIsTrue(courseId);
+
         return ApiResponse.<CourseResponse>builder()
                 .message("Get course has: " + courseId + " success.")
                 .data(courseResponse)
